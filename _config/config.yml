@@ -1,0 +1,8 @@
+---
+Name: components
+---
+Injector:
+  SSTemplateParser:
+    properties:
+      closedBlocks:
+        component: SilbinaryWolf\Components\TemplateParserComponentProvider::componentTemplate
