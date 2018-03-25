@@ -3,7 +3,7 @@
     "description": "Create components using SilverStripe.",
     "type": "silverstripe-module",
     "keywords": [
-        "silverstripe",
+        "silverstripe"
     ],
     "license": "BSD-3-Clause",
     "authors": [
@@ -13,7 +13,7 @@
         }
     ],
     "require": {
-        "silverstripe/framework": "~3.6",
+        "silverstripe/framework": "~3.6"
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "^3.0"

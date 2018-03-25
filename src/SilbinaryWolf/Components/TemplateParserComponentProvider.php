@@ -55,8 +55,14 @@ class TemplateParserComponentProvider
             $properties[$varName] = $value;
         }
 
-        $componentClass = Component::class;
-        $htmlTextClass = HTMLText::class;
+        // HTMLText::class / Component::class won't work in PHP versions below 5.5
+        // we just utilize the string values directly here.
+        //
+        // When this module stops supporting lower PHP versions, we will replace these
+        // values.
+        //
+        $componentClass = 'SilbinaryWolf\Components\Component';
+        $htmlTextClass = 'HTMLText';
 
         // Add HTML within the block as $Children variable
         $childrenText = $res['Template']['text'];

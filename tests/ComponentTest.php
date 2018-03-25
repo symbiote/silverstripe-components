@@ -9,14 +9,14 @@ use SSViewer_FromString;
 
 class ComponentTest extends SapphireTest
 {
-    public function setUp() 
+    public function setUp()
     {
         parent::setUp();
-        Config::inst()->update(SSViewer::class, 'source_file_comments', false);
-        Config::inst()->update(SSViewer_FromString::class, 'cache_template', false);
+        Config::inst()->update('SSViewer', 'source_file_comments', false);
+        Config::inst()->update('SSViewer_FromString', 'cache_template', false);
     }
 
-    public function tearDown() 
+    public function tearDown()
     {
         parent::tearDown();
     }
@@ -44,10 +44,33 @@ HTML;
         $this->assertEqualIgnoringWhitespace($expectedHTML, $resultHTML, 'Unexpected output');
     }
 
+        /**
+         *
+         */
+    public function testPassingOptionalTypeProperty()
+    {
+        $template = <<<SSTemplate
+<% component MyComponentButton, "Class=btn btn-primary", "Type=submit" %>
+    <span class="text">
+        Submit me!
+    </span>
+<% end_component %>
+SSTemplate;
+        $resultHTML = SSViewer::fromString($template)->process(null);
+        $expectedHTML = <<<HTML
+<button class="btn btn-primary" type="submit">
+    <span class="text">
+        Submit me!
+    </span>
+</button>
+HTML;
+        $this->assertEqualIgnoringWhitespace($expectedHTML, $resultHTML, 'Unexpected output');
+    }
+
     /**
      * Taken from "framework\tests\view\SSViewerTest.php"
      */
-    protected function assertEqualIgnoringWhitespace($a, $b) 
+    protected function assertEqualIgnoringWhitespace($a, $b)
     {
         $this->assertEquals(preg_replace('/\s+/', '', $a), preg_replace('/\s+/', '', $b));
     }
