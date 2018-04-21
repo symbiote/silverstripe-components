@@ -6,22 +6,24 @@
 
 >MyComponentButton.ss
 ```
-<button class="$Class" type="<% if $Type %>$Type<% else %>button<% end_if %>">
-	$Children
+<button class="$class" type="<% if $type %>$type<% else %>button<% end_if %>">
+    $children
 </button>
 ```
 
 3. Call your component from your Page.ss template or similar.
 ```
-<% component MyComponentButton, "Class=btn btn-secondary" %>
-	<span class="text">
+<:MyComponentButton class="btn btn-secondary">
+    <span class="text">
 		Do something that isn't submitting!
 	</span>
-<% end_component %>
+</:MyComponentButton>
 
-<% component MyComponentButton, "Class=btn btn-primary", "Type=submit" %>
-	<span class="text">
+<:MyComponentButton class="btn btn-secondary"
+	type="submit"
+>
+    <span class="text">
 		Submit me!
 	</span>
-<% end_component %>
+</:MyComponentButton>
 ```
