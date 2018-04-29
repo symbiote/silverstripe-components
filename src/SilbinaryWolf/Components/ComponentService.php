@@ -46,18 +46,51 @@ class ComponentService
             }
             
             // Modify provided PHP code
-            $valueParts = explode('[_CPB]', $valueParts);
-            $phpCode = '$_props[\''.$propertyName.'\'] = \'\''.";\n";
-            foreach ($valueParts as $value) {
+            $ifValueParts = explode('[_CPB]', $valueParts);
+            $phpCode = "\$_props['".$propertyName."'] = array();\n";
+            foreach ($ifValueParts as $value) {
                 $value = trim($value);
-                if (strpos($value, '$val .=') !== false) {
-                    $value = str_replace('$val .=', '$_props[\''.$propertyName.'\'] .=', $value);
+                // NOTE(Jake): 2018-04-29
+                //
+                // Remove blank string concats from template. This is to avoid an object from
+                // being cast to a string, like getAttributesHTML().
+                //
+                // We want to avoid this so that in SS4, there attributes aren't double quoted as
+                // HTML is escaped by default.
+                //
+                //$value = str_replace(array("''.", ".''"), '', $value);
+                $valueParts = explode('[_CFP]', $value);
+                foreach ($valueParts as $valuePart) {
+                    if ($valuePart === "''") {
+                        // Skip empty string parts
+                        continue;
+                    }
+                    $valuePart = trim($valuePart);
+                    if (strpos($valuePart, '$val .=') !== false) {
+                        if (strpos($valuePart, 'XML_val(') !== false) {
+                            // NOTE(Jake): 2018-04-29, This hack is for inside an <% if %>
+                            $valuePart = str_replace(array('XML_val(', ';'), array('obj(', '->self();'), $valuePart);
+                        }
+                        $valuePart = str_replace('$val .=', '$_props[\''.$propertyName.'\'][] =', $valuePart);
+                        $phpCode .= $valuePart."\n";
+                        continue;
+                    }
+                    $phpCode .= "\$_props['".$propertyName."'][] = ".$valuePart.";\n";
+                    //$propertyCode .= $valuePart.',';
+                }
+                //$propertyCode = substr($propertyCode, 0, -1);
+                //$propertyCode = 'array('.$propertyCode.')';
+                //$propertyCode = 'Injector::inst()->createWithArgs(\'SilbinaryWolf\\Components\\DBComponentField\', array('.$propertyCode.'))';
+                /*if (strpos($value, '$val .=') !== false) {
+                    $value = str_replace('$val .=', '$_props[\''.$propertyName.'\'][] =', $value);
                     $phpCode .= $value."\n";
                     continue;
                 }
-                $phpCode .= '$_props[\''.$propertyName.'\'] .= '.$value.";\n";
+                $phpCode .= '$_props[\''.$propertyName.'\'][] = '.$propertyCode.";\n";*/
             }
+            $phpCode .= "\$_props['".$propertyName."'] = Injector::inst()->createWithArgs('SilbinaryWolf\\Components\\DBComponentField', array('".$propertyName."', \$_props['".$propertyName."']));\n";
             $arguments[$propertyName] = $phpCode;
+            //$arguments[$propertyName] = "Injector::inst()->createWithArgs('SilbinaryWolf\\Components\\DBComponentField', array(".$phpCode."))";
         }
 
         // Output "children" php code

@@ -9,19 +9,6 @@ use Exception;
 class ComponentData extends ViewableData
 {
     /**
-     * Change the base default field so that `forTemplate` calls don't cast
-     * the data to XML.
-     *
-     * This isn't required in SilverStripe 3 but fixes double quote issues in
-     * SilverStripe 4+.
-     *
-     * @see ComponentTest::testAvoidBadXMLEscaping()
-     * @var string
-     * @config
-     */
-    private static $default_cast = 'SilbinaryWolf\Components\DBComponentField';
-    
-    /**
      * The component name.
      * NOTE: Many _'s to avoid clashing with a property called 'name'.
      *

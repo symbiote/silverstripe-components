@@ -12,44 +12,28 @@ Here is an example of how this component template extension gets translated into
 
 **SilverStripe Template:**
 ```
-<:Button class="add-another-class!">
-	<% if $Title %>
-		$Title
-	<% else %>
-		<div>Content</div>
-	<% end_if %>
-</:Button>
+<:FormTextInput class="<% if $getAttribute("class") %>$getAttribute('class')<% end_if %> test" />
 ```
 
 **Output:**
+NOTE: We store each "part" passed in to a parameter seperately so that we can retain how the data should be cast when the value
+is output as a string. This is necessary in SilverStripe 4 to ensure passing 'getAttributesHTML' (or any other HTMLText object) will work as expected.
 ```
+<?php
+
+$val .= '
+';
+
 $_props = array();
-$_props['class'] = '';
-$_props['class'] .= 'add-another-class!';
-$_props['children'] = '';
-$_props['children'] .= '
-		';
-
-if ($scope->locally()->hasValue('Title', null, true)) { 
-$_props['children'] .= '
-			';
-
-$_props['children'] .= $scope->locally()->XML_val('Title', null, true);
-$_props['children'] .= '
-		';
-
-
-}else { 
-$_props['children'] .= '
-			<div>Content</div>
-		';
-
+$_props['class'] = array();
+if ($scope->locally()->hasValue('getAttribute', array('class'), true)) { 
+$_props['class'][] = $scope->locally()->obj('getAttribute', array('class'), true)->self();
 
 }
-$_props['children'] .= '
-	';
-
-$_props['children'] = DBField::create_field('HTMLText', $_props['children']);
-$val .= Injector::inst()->get('SilbinaryWolf\Components\ComponentService')->renderComponent('Button', $_props, $scope);
-unset($_props);
+$_props['class'][] = ' test';
+$_props['class'] = Injector::inst()->createWithArgs('SilbinaryWolf\Components\DBComponentField', array('class', $_props['class']));
+$val .= Injector::inst()->get('SilbinaryWolf\Components\ComponentService')->renderComponent('FormTextInput', $_props, $scope);
+unset($_props); 
+$val .= '
+';
 ```

@@ -128,6 +128,25 @@ SSTemplate;
         $this->assertEqualIgnoringWhitespace($expectedHTML, $resultHTML, 'Unexpected output');
     }
 
+    public function testIfStatement()
+    {
+        $template = <<<SSTemplate
+<:MyComponentButtonWithObjectCast 
+    class="btn btn-primary" 
+    type="submit"
+    attributesHTML="<% if \$Field.getAttributesHTML("class","type") %>\$Field.getAttributesHTML("class","type")<% end_if %> data-test"
+/>
+SSTemplate;
+        $expectedHTML = <<<HTML
+<button class="btn btn-primary" type="submit" name="Name" id="Name" data-test></button>
+HTML;
+        $formField = new TextField("Name", "Name");
+        $resultHTML = SSViewer::fromString($template)->process(new ArrayData(array(
+            'Field' => $formField,
+        )));
+        $this->assertEqualIgnoringWhitespace($expectedHTML, $resultHTML, 'Unexpected output');
+    }
+
     /**
      * This is to make sure that "double quoting" doesn't occur when passing "getAttributesHTML"
      * into a component, ie. Resulting HTML looks like:

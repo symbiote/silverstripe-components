@@ -86,7 +86,9 @@ class ComponentTemplateParser extends SSTemplateParser
     */
     function ComposedArgumentInjection_STR(&$res, $sub)
     {
-        $res['php'] = '\'.'.str_replace('$$FINAL', 'XML_val', $sub['Lookup']['php']).'.\'';
+        $obj = str_replace('$$FINAL', 'obj', $sub['Lookup']['php']) . '->self()';
+        // NOTE: CFP == Component Field Part
+        $res['php'] = "'[_CFP]".$obj."[_CFP]'";
     }
 
     function ComposedArgumentInjection_If(&$res, $sub)
@@ -109,7 +111,8 @@ PHP;
     function ComposedArgument_ComposedArgumentQuotedString(&$res, $sub)
     {
         $res['ArgumentMode'] = 'string';
-        $res['php'] = '\'' .$sub['php'] . '\'';
+        //$res['php'] = "'" .str_replace("'", "\\'", $sub['php']) . "'";
+        $res['php'] = "'" . $sub['php'] . "'";
     }
 
     function ComposedArgument_IfArgument(&$res, $sub)
