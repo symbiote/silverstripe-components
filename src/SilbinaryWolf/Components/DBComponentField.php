@@ -55,6 +55,7 @@ class DBComponentField extends Text
 
     /**
      * (non-PHPdoc)
+     *
      * @see DBField::requireField()
      */
     public function requireField()

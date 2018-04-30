@@ -1038,7 +1038,7 @@ PHP;
 
     function ComposedArgumentQuotedString_ComposedArgumentString(&$res, $sub)
     {
-        $res['php'] .= $sub['text'];
+        $res['php'] .= str_replace("'", "\\'", $sub['text']);
     }
 
     function ComposedArgumentQuotedString_ComposedArgumentInjection(&$res, $sub)
@@ -1049,8 +1049,8 @@ PHP;
     function ComposedArgument_ComposedArgumentQuotedString(&$res, $sub)
     {
         $res['ArgumentMode'] = 'string';
-        //$res['php'] = "'" .str_replace("'", "\\'", $sub['php']) . "'";
-        $res['php'] = "'" . $sub['php'] . "'";
+        $php = $sub['php'];
+        $res['php'] = "'" . $php . "'";
     }
 
     function ComposedArgument_IfArgument(&$res, $sub)

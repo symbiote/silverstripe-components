@@ -29,7 +29,7 @@ To recompile after changing this file, run this from the 'components' module dir
 class ComponentTemplateParser extends SSTemplateParser
 {
     /*!* SSTemplateParser
-    
+
     # NOTE(Jake): 2018-03-30, This was copied from SS Framework 3.6
     # - Note: "Component" and "ComponentSelfClosing"
     #
@@ -42,7 +42,7 @@ class ComponentTemplateParser extends SSTemplateParser
     */
 
     /*!*
-    
+
     # NOTE(Jake): 2018-03-30, This was copied from SS Framework 3.6
     #
     # TopTemplate is the same as Template, but should only be used at the top level (not nested), as it includes
@@ -53,7 +53,7 @@ class ComponentTemplateParser extends SSTemplateParser
 
     /*!*
 
-    # NOTE(Jake): 2018-03-30, This was copied from SS Framework 3.6  
+    # NOTE(Jake): 2018-03-30, This was copied from SS Framework 3.6
     #
     # An argument that can be passed through to an included template
 
@@ -62,9 +62,9 @@ class ComponentTemplateParser extends SSTemplateParser
     */
 
     /*!*
-        
+
     ComposedArgumentString: / (\\\\ | \\. | [^$q\\]) /
-        
+
     ComposedArgumentInjection: BracketInjection | SimpleInjection | If
 
     ComposedArgumentQuotedString: q:/['"]/ ( ComposedArgumentInjection | ComposedArgumentString )* '$q'
@@ -75,14 +75,14 @@ class ComponentTemplateParser extends SSTemplateParser
         :QuotedString |
         :Lookup !(< FreeString)|
         :FreeString
-    
+
     ComposedArgument extends Argument:
         '{' < :IfArgument > '}' |
         :DollarMarkedLookup |
         :ComposedArgumentQuotedString |
         :Lookup !(< FreeString)|
         :FreeString
-        
+
     */
     function ComposedArgumentInjection_STR(&$res, $sub)
     {
@@ -100,7 +100,7 @@ PHP;
 
     function ComposedArgumentQuotedString_ComposedArgumentString(&$res, $sub)
     {
-        $res['php'] .= $sub['text'];
+        $res['php'] .= str_replace("'", "\\'", $sub['text']);
     }
 
     function ComposedArgumentQuotedString_ComposedArgumentInjection(&$res, $sub)
@@ -111,8 +111,8 @@ PHP;
     function ComposedArgument_ComposedArgumentQuotedString(&$res, $sub)
     {
         $res['ArgumentMode'] = 'string';
-        //$res['php'] = "'" .str_replace("'", "\\'", $sub['php']) . "'";
-        $res['php'] = "'" . $sub['php'] . "'";
+        $php = $sub['php'];
+        $res['php'] = "'" . $php . "'";
     }
 
     function ComposedArgument_IfArgument(&$res, $sub)
@@ -159,7 +159,7 @@ PHP;
     }
 
     /*!*
-    
+
     # NOTE(Jake): 2018-03-30, This was copied from SS Framework 3.6
     #
     # Text matches anything that isn't a template command (not an injection, block of any kind or comment)

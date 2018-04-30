@@ -47,6 +47,29 @@ HTML;
     }
 
     /**
+     * Make sure that ' characters are escaped.
+     */
+    public function testSingleQuoteCharacterIsEscaped()
+    {
+        $template = <<<SSTemplate
+<:MyComponentButton class="btn btn-secondary" type="Test's and Stuff" >
+    <span class="text">
+        No submission's
+    </span>
+</:MyComponentButton>
+SSTemplate;
+        $resultHTML = SSViewer::fromString($template)->process(null);
+        $expectedHTML = <<<HTML
+<button class="btn btn-secondary" type="Test's and Stuff">
+    <span class="text">
+        No submission's
+    </span>
+</button>
+HTML;
+        $this->assertEqualIgnoringWhitespace($expectedHTML, $resultHTML, 'Unexpected output');
+    }
+
+    /**
      *
      */
     public function testPassingOptionalTypeProperty()
@@ -72,8 +95,8 @@ HTML;
     public function testSelfClosingSupport()
     {
         $template = <<<SSTemplate
-<:MyComponentButton 
-    class="btn btn-primary" 
+<:MyComponentButton
+    class="btn btn-primary"
     type="submit"
 />
 SSTemplate;
@@ -94,8 +117,8 @@ HTML;
 </button>
 HTML;
         $template = <<<SSTemplate
-<:MyComponentButton 
-    class="btn btn-primary" 
+<:MyComponentButton
+    class="btn btn-primary"
     type="submit"
 >
     <span class="text">
@@ -106,7 +129,7 @@ SSTemplate;
         $resultHTML = SSViewer::fromString($template)->process(null);
         $this->assertEqualIgnoringWhitespace($expectedHTML, $resultHTML, 'Unexpected output');
         $template = <<<SSTemplate
-<:MyComponentButton class="btn btn-primary" 
+<:MyComponentButton class="btn btn-primary"
     type="submit"
 >
     <span class="text">
@@ -117,7 +140,7 @@ SSTemplate;
         $resultHTML = SSViewer::fromString($template)->process(null);
         $this->assertEqualIgnoringWhitespace($expectedHTML, $resultHTML, 'Unexpected output');
         $template = <<<SSTemplate
-<:MyComponentButton class="btn btn-primary" 
+<:MyComponentButton class="btn btn-primary"
     type="submit">
     <span class="text">
         Submit me!
@@ -131,8 +154,8 @@ SSTemplate;
     public function testIfStatement()
     {
         $template = <<<SSTemplate
-<:MyComponentButtonWithObjectCast 
-    class="btn btn-primary" 
+<:MyComponentButtonWithObjectCast
+    class="btn btn-primary"
     type="submit"
     attributesHTML="<% if \$Field.getAttributesHTML("class","type") %>\$Field.getAttributesHTML("class","type")<% end_if %> data-test"
 />
@@ -141,9 +164,13 @@ SSTemplate;
 <button class="btn btn-primary" type="submit" name="Name" id="Name" data-test></button>
 HTML;
         $formField = new TextField("Name", "Name");
-        $resultHTML = SSViewer::fromString($template)->process(new ArrayData(array(
-            'Field' => $formField,
-        )));
+        $resultHTML = SSViewer::fromString($template)->process(
+            new ArrayData(
+                array(
+                'Field' => $formField,
+                )
+            )
+        );
         $this->assertEqualIgnoringWhitespace($expectedHTML, $resultHTML, 'Unexpected output');
     }
 
@@ -152,20 +179,19 @@ HTML;
      * into a component, ie. Resulting HTML looks like:
      *
      * <button class="btn btn-secondary" type="button" name=&quot;Name&quot; id=&quot;Name&quot;></button>'
-     *
      */
     public function testAvoidBadXMLEscaping()
     {
         $template = <<<SSTemplate
-<:MyComponentButtonWithObjectCast 
-    class="btn btn-primary" 
+<:MyComponentButtonWithObjectCast
+    class="btn btn-primary"
     type="submit"
     attributesHTML="\$Field.getAttributesHTML("class","type")"
 />
 
 <% with \$Field %>
-    <:MyComponentButtonWithObjectCast 
-        class="btn btn-secondary" 
+    <:MyComponentButtonWithObjectCast
+        class="btn btn-secondary"
         type="button"
         attributesHTML="\$getAttributesHTML("class","type")"
     />
@@ -176,9 +202,13 @@ SSTemplate;
 <button class="btn btn-secondary" type="button" name="Name" id="Name"></button>
 HTML;
         $formField = new TextField("Name", "Name");
-        $resultHTML = SSViewer::fromString($template)->process(new ArrayData(array(
-            'Field' => $formField,
-        )));
+        $resultHTML = SSViewer::fromString($template)->process(
+            new ArrayData(
+                array(
+                'Field' => $formField,
+                )
+            )
+        );
         $this->assertEqualIgnoringWhitespace($expectedHTML, $resultHTML, 'Unexpected output');
     }
 

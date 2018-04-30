@@ -24,7 +24,6 @@ class ComponentData extends ViewableData
      *
      * (ie. passing an property 'class' to ArrayData won't work as
      * it'll just utilize the class name "ArrayData")
-     *
      */
     public function __construct($name, array $props)
     {

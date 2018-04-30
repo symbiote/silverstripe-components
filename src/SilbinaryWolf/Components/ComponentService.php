@@ -44,7 +44,7 @@ class ComponentService
             if (strpos($valueParts, '<% loop') !== false) {
                 throw new SSTemplateParseException('Cannot use < % loop % > inside property "'.$propertyName.'" on component "'.$componentName.'"', $parser);
             }
-            
+
             // Modify provided PHP code
             $ifValueParts = explode('[_CPB]', $valueParts);
             $phpCode = "\$_props['".$propertyName."'] = array();\n";
@@ -112,7 +112,7 @@ class ComponentService
         }
         $result .= <<<PHP
 \$val .= Injector::inst()->get('SilbinaryWolf\\Components\\ComponentService')->renderComponent('$componentName', \$_props, \$scope);
-unset(\$_props); 
+unset(\$_props);
 PHP;
         return $result;
     }
