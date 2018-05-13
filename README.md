@@ -26,7 +26,7 @@ This module allows you to use special <:TemplateName> syntax to include template
 ## Composer Install
 
 ```
-composer require silbinarywolf/silverstripe-components:0.3.1
+composer require silbinarywolf/silverstripe-components:0.4.0
 ```
 
 ## Requirements

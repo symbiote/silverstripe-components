@@ -6,8 +6,10 @@ use Config;
 use SapphireTest;
 use SSViewer;
 use SSViewer_FromString;
+use ArrayList;
 use ArrayData;
 use TextField;
+use ViewableData;
 
 class ComponentTest extends SapphireTest
 {
@@ -61,6 +63,29 @@ SSTemplate;
         $resultHTML = SSViewer::fromString($template)->process(null);
         $expectedHTML = <<<HTML
 <button class="btn btn-secondary" type="Test's and Stuff">
+    <span class="text">
+        No submission's
+    </span>
+</button>
+HTML;
+        $this->assertEqualIgnoringWhitespace($expectedHTML, $resultHTML, 'Unexpected output');
+    }
+
+    /**
+     * Make sure that \ characters are escaped.
+     */
+    public function testBackslashCharacterIsEscaped()
+    {
+        $template = <<<SSTemplate
+<:MyComponentButton class="btn btn-secondary" type="Test\'s and Stuff" >
+    <span class="text">
+        No submission's
+    </span>
+</:MyComponentButton>
+SSTemplate;
+        $resultHTML = SSViewer::fromString($template)->process(null);
+        $expectedHTML = <<<HTML
+<button class="btn btn-secondary" type="Test\'s and Stuff">
     <span class="text">
         No submission's
     </span>
@@ -168,6 +193,91 @@ HTML;
             new ArrayData(
                 array(
                 'Field' => $formField,
+                )
+            )
+        );
+        $this->assertEqualIgnoringWhitespace($expectedHTML, $resultHTML, 'Unexpected output');
+    }
+
+    public function testSSListSupport()
+    {
+        $list = new ArrayList(array(
+            new ArrayData(array(
+                'Title' => 'Menu Item 1'
+            )),
+            new ArrayData(array(
+                'Title' => 'Menu Item 2'
+            ))
+        ));
+        $template = <<<SSTemplate
+<div class="menu-container-count-\$MenuList.Count">
+    <:SSListComponent
+        Items="\$MenuList"
+    />
+</div>
+SSTemplate;
+        $expectedHTML = <<<HTML
+<div class="menu-container-count-2">
+    <ul class="menu menu-count-2">
+         <li class="menu-item menu-item-1">
+            Menu Item 1
+        </li>
+        <li class="menu-item menu-item-2">
+            Menu Item 2
+        </li>
+    </ul>
+</div>
+HTML;
+        $formField = new TextField("Name", "Name");
+        $resultHTML = SSViewer::fromString($template)->process(
+            new ArrayData(
+                array(
+                'MenuList' => $list,
+                )
+            )
+        );
+        $this->assertEqualIgnoringWhitespace($expectedHTML, $resultHTML, 'Unexpected output');
+    }
+
+    /**
+     * Test to make sure anything that inherits ViewableData works
+     * inside a template.
+     *
+     * Classes that subclass ViewableData include:
+     * - ArrayData
+     * - DataObject
+     * - SiteTree
+     *
+     */
+    public function testViewableDataSupport()
+    {
+        $record = new ViewableData();
+        $record->Title = "ViewableData Title 1";
+
+        $template = <<<SSTemplate
+<:ViewableDataComponent
+    MyRecord="\$MyRecord"
+/>
+<:ViewableDataComponent
+    MyRecord="\$MyArrayData"
+/>
+SSTemplate;
+        $expectedHTML = <<<HTML
+<li class="menu-item">
+    ViewableData Title 1
+</li>
+<li class="menu-item">
+    ArrayData Title 2
+</li>
+HTML;
+        $formField = new TextField("Name", "Name");
+        $resultHTML = SSViewer::fromString($template)->process(
+            new ArrayData(
+                array(
+                'MyRecord' => $record,
+                'MyArrayData' => new ArrayData(array(
+                    'Title' => 'ArrayData Title 2'
+                ))
                 )
             )
         );

@@ -1038,7 +1038,7 @@ PHP;
 
     function ComposedArgumentQuotedString_ComposedArgumentString(&$res, $sub)
     {
-        $res['php'] .= str_replace("'", "\\'", $sub['text']);
+        $res['php'] .= str_replace(array("\\", "'"), array("\\\\", "\\'"), $sub['text']);
     }
 
     function ComposedArgumentQuotedString_ComposedArgumentInjection(&$res, $sub)

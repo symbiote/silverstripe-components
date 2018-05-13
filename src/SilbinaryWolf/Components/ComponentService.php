@@ -10,6 +10,9 @@ use SSTemplateParser;
 use SSTemplateParseException;
 use ArrayData;
 use Debug;
+use SS_List;
+use DataObject;
+use StringField;
 
 class ComponentService
 {
@@ -47,7 +50,7 @@ class ComponentService
 
             // Modify provided PHP code
             $ifValueParts = explode('[_CPB]', $valueParts);
-            $phpCode = "\$_props['".$propertyName."'] = array();\n";
+            $phpCodeValueParts = array();
             foreach ($ifValueParts as $value) {
                 $value = trim($value);
                 // NOTE(Jake): 2018-04-29
@@ -58,7 +61,6 @@ class ComponentService
                 // We want to avoid this so that in SS4, there attributes aren't double quoted as
                 // HTML is escaped by default.
                 //
-                //$value = str_replace(array("''.", ".''"), '', $value);
                 $valueParts = explode('[_CFP]', $value);
                 foreach ($valueParts as $valuePart) {
                     if ($valuePart === "''") {
@@ -72,25 +74,31 @@ class ComponentService
                             $valuePart = str_replace(array('XML_val(', ';'), array('obj(', '->self();'), $valuePart);
                         }
                         $valuePart = str_replace('$val .=', '$_props[\''.$propertyName.'\'][] =', $valuePart);
-                        $phpCode .= $valuePart."\n";
+                        $phpCodeValueParts[] = $valuePart;
+                        //$phpCode .= $valuePart."\n";
                         continue;
                     }
-                    $phpCode .= "\$_props['".$propertyName."'][] = ".$valuePart.";\n";
-                    //$propertyCode .= $valuePart.',';
+                    $valuePart = "\$_props['".$propertyName."'][] = ".$valuePart.";";
+                    $phpCodeValueParts[] = $valuePart;
+                    //$phpCode .= $valuePart."\n";
                 }
-                //$propertyCode = substr($propertyCode, 0, -1);
-                //$propertyCode = 'array('.$propertyCode.')';
-                //$propertyCode = 'Injector::inst()->createWithArgs(\'SilbinaryWolf\\Components\\DBComponentField\', array('.$propertyCode.'))';
-                /*if (strpos($value, '$val .=') !== false) {
-                    $value = str_replace('$val .=', '$_props[\''.$propertyName.'\'][] =', $value);
-                    $phpCode .= $value."\n";
-                    continue;
-                }
-                $phpCode .= '$_props[\''.$propertyName.'\'][] = '.$propertyCode.";\n";*/
             }
-            $phpCode .= "\$_props['".$propertyName."'] = Injector::inst()->createWithArgs('SilbinaryWolf\\Components\\DBComponentField', array('".$propertyName."', \$_props['".$propertyName."']));\n";
+
+            $phpCode = "";
+            if (count($phpCodeValueParts) === 1) {
+                //$phpCode .= "\$_props['".$propertyName."'] = \$_props['".$propertyName."'][0];\n";
+                $phpCode = "\$_props['".$propertyName."'] = array();\n";
+                $phpCode .= $phpCodeValueParts[0]."\n";
+                //$phpCode .= "\$_props['".$propertyName."'] = \$_props['".$propertyName."'][0];\n";
+            } else {
+                $phpCode = "\$_props['".$propertyName."'] = array();\n";
+                foreach ($phpCodeValueParts as $phpCodeValuePart) {
+                    $phpCode .= $phpCodeValuePart."\n";
+                }
+                //$phpCode .= "\$_props['".$propertyName."'] = Injector::inst()->createWithArgs('SilbinaryWolf\\Components\\DBComponentField', array('".$propertyName."', \$_props['".$propertyName."']));\n";
+            }
+            $phpCode .= "\$_props['".$propertyName."'] = Injector::inst()->get('SilbinaryWolf\\Components\\ComponentService')->createProperty('".$propertyName."', \$_props['".$propertyName."']);\n";
             $arguments[$propertyName] = $phpCode;
-            //$arguments[$propertyName] = "Injector::inst()->createWithArgs('SilbinaryWolf\\Components\\DBComponentField', array(".$phpCode."))";
         }
 
         // Output "children" php code
@@ -115,6 +123,30 @@ class ComponentService
 unset(\$_props);
 PHP;
         return $result;
+    }
+
+    /**
+     * @return DBComponentField|SS_List|DataObject|ArrayData
+     */
+    public function createProperty($name, array $parts)
+    {
+        // NOTE(Jake): 2018-05-11
+        //
+        // If in a component, only 1 variable is passed, like so:
+        // - <:Comp attribute="$AListVariable">
+        //
+        // This is so you can use DataLists in a component or the like.
+        //
+        // The 'instanceof' checks are only really necessary to cast patch "getAttributesHTML"
+        // in SilverStripe 3.X. They can probably be removed in favour of just returning $parts[0]
+        // in SilverStripe 4.X.
+        //
+        if (count($parts) === 1) {
+            if (!($parts[0] instanceof StringField)) {
+                return $parts[0];
+            }
+        }
+        return Injector::inst()->createWithArgs('SilbinaryWolf\Components\DBComponentField', array($name, $parts));
     }
 
     /**
