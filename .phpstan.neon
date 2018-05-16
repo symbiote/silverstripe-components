@@ -1,0 +1,17 @@
+parameters:
+    earlyTerminatingMethodCalls:
+        Controller:
+            - redirect
+    universalObjectCratesClasses:
+        - ArrayData
+        - Config_ForClass
+        - DataObject
+    excludes_analyse:
+        - silverstripe-cache
+    ignoreErrors:
+        # Ignore object errors (PHPStan can't understand classes called "Object")
+        - '%Call to an undefined method object::%'
+        # Ignore missing variable declarations on SSTemplateParser
+        - '%Access to an undefined property SilbinaryWolf\\Components\\ComponentTemplateParser%'
+#includes:
+#   - ../vendor/silbinarywolf/silverstripe-phpstan/extension.neon

@@ -251,6 +251,11 @@ HTML;
      */
     public function testViewableDataSupport()
     {
+        /**
+         * Stop PHPStan error as we're using this like "mixed" type.
+         *
+         * @var mixed $record
+         */
         $record = new ViewableData();
         $record->Title = "ViewableData Title 1";
 

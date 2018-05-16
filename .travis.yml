@@ -8,7 +8,6 @@ php:
 env:
   matrix:
     - DB=MYSQL CORE_RELEASE=3.6
-
 matrix:
   include:
     - php: 5.4
@@ -32,14 +31,17 @@ matrix:
       env:
         - DB=MYSQL
         - CORE_RELEASE=3.6
+        - PHPSTAN_TEST=1
 
 before_script:
   - composer self-update || true
   - phpenv rehash
   - git clone git://github.com/silverstripe-labs/silverstripe-travis-support.git ~/travis-support
-  - php ~/travis-support/travis_setup.php --source `pwd` --target ~/builds/ss
+  - if [[ -z $PHPSTAN_TEST ]]; then php ~/travis-support/travis_setup.php --source `pwd` --target ~/builds/ss; fi
+  - if [[ $PHPSTAN_TEST ]]; then php ~/travis-support/travis_setup.php --source `pwd` --target ~/builds/ss --require phpstan/phpstan-shim:0.9.2; fi
   - cd ~/builds/ss
 
 script:
   - if [[ $PHPCS_TEST ]]; then vendor/bin/phpcs --ignore=src/SilbinaryWolf/Components/ComponentTemplateParser.php components/src/ components/tests/ -n; fi
+  - if [[ $PHPSTAN_TEST ]]; then vendor/bin/phpstan analyse components/src/ components/tests/ -c "components/.phpstan.neon" -a "components/tests/bootstrap-phpstan.php" --level 3; fi
   - vendor/bin/phpunit components/tests/

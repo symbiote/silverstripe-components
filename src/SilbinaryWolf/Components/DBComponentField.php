@@ -6,6 +6,7 @@ use Text;
 use DBField;
 use Exception;
 use SS_List;
+use ViewableData;
 
 class DBComponentField extends Text
 {
@@ -23,7 +24,7 @@ class DBComponentField extends Text
     /**
      * Store the objects passed into a component property.
      *
-     * @var (DBField|SS_List|string)[]
+     * @var ViewableData[]
      */
     protected $fields = array();
 

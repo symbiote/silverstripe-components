@@ -27,6 +27,7 @@ class ComponentData extends ViewableData
      */
     public function __construct($name, array $props)
     {
+        parent::__construct();
         $this->____name = $name;
         foreach ($props as $name => $value) {
             $this->{$name} = $value;
