@@ -25,14 +25,20 @@ This module allows you to use special <:TemplateName> syntax to include template
 
 ## Composer Install
 
+**[SilverStripe 3.X](https://github.com/silbinarywolf/silverstripe-components/tree/1)**
 ```
 composer require silbinarywolf/silverstripe-components:~1.0
 ```
 
+**[SilverStripe 4.X](https://github.com/silbinarywolf/silverstripe-components/tree/master)**
+```
+composer require silbinarywolf/silverstripe-components:~2.0
+```
+
 ## Requirements
 
-* PHP 5.4+
-* SilverStripe 3.6+
+* PHP 5.6+
+* SilverStripe 4.0+
 
 ## Documentation
 

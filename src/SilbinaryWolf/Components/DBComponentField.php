@@ -2,24 +2,28 @@
 
 namespace SilbinaryWolf\Components;
 
-use Text;
-use DBField;
 use Exception;
-use SS_List;
-use ViewableData;
+use SilverStripe\ORM\FieldType\DBText;
+use SilverStripe\ORM\FieldType\DBField;
+use SilverStripe\ORM\SS_List;
+use SilverStripe\View\ViewableData;
 
-class DBComponentField extends Text
+class DBComponentField extends DBText
 {
    /**
      * Workaround a "bug" in SilverStripe 3.X where
      * attributes aren't cast as HTMLText and don't
      * escape.
      *
+     * NOTE:
+     * We may re-introduce this feature in SS 4.X
+     * if it proves to be useful.
+     *
      * @var array
      */
-    private static $text_property_casting = array(
-        'getAttributesHTML' => true,
-    );
+    //private static $text_property_casting = array(
+    //    'getAttributesHTML' => true,
+    //);
 
     /**
      * Store the objects passed into a component property.
@@ -35,7 +39,7 @@ class DBComponentField extends Text
 
         // Set value from fields
         $value = '';
-        $textPropertyCasting = $this->config()->text_property_casting;
+        //$textPropertyCasting = $this->config()->text_property_casting;
         foreach ($this->fields as $i => $field) {
             if (!is_object($field)) {
                 $value .= $field;
@@ -47,13 +51,13 @@ class DBComponentField extends Text
                 }
                 throw new Exception("Missing forTemplate() on field part #$i for component property \"$name\".");
             }
-            if (get_class($field) === 'Text') {
-                if ($textPropertyCasting &&
-                    isset($textPropertyCasting[$field->getName()])) {
-                    $value .= $field->getValue();
-                    continue;
-                }
-            }
+            //if (get_class($field) === 'Text') {
+            //    if ($textPropertyCasting &&
+            //        isset($textPropertyCasting[$field->getName()])) {
+            //        $value .= $field->getValue();
+            //        continue;
+            //    }
+            //}
             $value .= $field->forTemplate();
         }
         $this->value = $value;

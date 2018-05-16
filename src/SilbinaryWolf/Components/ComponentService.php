@@ -2,17 +2,16 @@
 
 namespace SilbinaryWolf\Components;
 
-use SSViewer;
-use SSViewer_Scope;
-use HTMLText;
-use Injector;
-use SSTemplateParser;
-use SSTemplateParseException;
-use ArrayData;
-use Debug;
-use SS_List;
-use DataObject;
-use StringField;
+use SilverStripe\View\SSViewer;
+use SilverStripe\View\SSViewer_Scope;
+use SilverStripe\ORM\FieldType\DBHTMLText;
+use SilverStripe\Core\Injector\Injector;
+use SilverStripe\View\SSTemplateParser;
+use SilverStripe\View\SSTemplateParseException;
+use SilverStripe\View\ArrayData;
+use SilverStripe\ORM\SS_List;
+use SilverStripe\ORM\DataObject;
+use SilverStripe\ORM\FieldType\DBString;
 
 class ComponentService
 {
@@ -23,6 +22,8 @@ class ComponentService
      */
     public function generateTemplateCode(array $res, $parser)
     {
+        $thisClassIdent = self::class.'::class';
+
         $componentName = $res['ComponentName']['text'];
         $arguments = array();
         $resArguments = isset($res['arguments']) ? $res['arguments'] : array();
@@ -97,7 +98,7 @@ class ComponentService
                 }
                 //$phpCode .= "\$_props['".$propertyName."'] = Injector::inst()->createWithArgs('SilbinaryWolf\\Components\\DBComponentField', array('".$propertyName."', \$_props['".$propertyName."']));\n";
             }
-            $phpCode .= "\$_props['".$propertyName."'] = Injector::inst()->get('SilbinaryWolf\\Components\\ComponentService')->createProperty('".$propertyName."', \$_props['".$propertyName."']);\n";
+            $phpCode .= "\$_props['".$propertyName."'] = \SilverStripe\Core\Injector\Injector::inst()->get({$thisClassIdent})->createProperty('".$propertyName."', \$_props['".$propertyName."']);\n";
             $arguments[$propertyName] = $phpCode;
         }
 
@@ -109,7 +110,7 @@ class ComponentService
             }
             $value = "\$_props['children'] = '';\n".$value;
             $value = str_replace("\$val .=", "\$_props['children'] .=", $value);
-            $value .= "\$_props['children'] = DBField::create_field('HTMLText', \$_props['children']);\n";
+            $value .= "\$_props['children'] = \SilverStripe\ORM\FieldType\DBField::create_field('HTMLFragment', \$_props['children']);\n";
             $arguments['children'] = $value;
         }
 
@@ -119,7 +120,7 @@ class ComponentService
             $result .= $phpCode;
         }
         $result .= <<<PHP
-\$val .= Injector::inst()->get('SilbinaryWolf\\Components\\ComponentService')->renderComponent('$componentName', \$_props, \$scope);
+\$val .= \SilverStripe\Core\Injector\Injector::inst()->get({$thisClassIdent})->renderComponent('$componentName', \$_props, \$scope);
 unset(\$_props);
 PHP;
         return $result;
@@ -142,11 +143,11 @@ PHP;
         // in SilverStripe 4.X.
         //
         if (count($parts) === 1) {
-            if (!($parts[0] instanceof StringField)) {
+            if (!($parts[0] instanceof DBString)) {
                 return $parts[0];
             }
         }
-        return Injector::inst()->createWithArgs('SilbinaryWolf\Components\DBComponentField', array($name, $parts));
+        return Injector::inst()->createWithArgs(DBComponentField::class, array($name, $parts));
     }
 
     /**
@@ -155,11 +156,16 @@ PHP;
      * @param  string         $name
      * @param  array          $props
      * @param  SSViewer_Scope $scope
-     * @return HTMLText
+     * @return DBHTMLText
      */
     public function renderComponent($name, array $props, SSViewer_Scope $scope)
     {
-        $result = Injector::inst()->createWithArgs('SSViewer', array($name));
+        $templates = [
+            ["type" => "components", $name],
+            ["type" => "Includes", $name],
+            $name
+        ];
+        $result = Injector::inst()->createWithArgs(SSViewer::class, [$templates]);
         $data = new ComponentData($name, $props);
         $result = $result->process($data);
         // todo(Jake): 2018-03-31

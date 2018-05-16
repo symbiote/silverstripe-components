@@ -2,8 +2,8 @@
 
 namespace SilbinaryWolf\Components\Tests;
 
-use Config;
-use SapphireTest;
+use SilverStripe\Core\Config\Config;
+use SilverStripe\Dev\SapphireTest;
 use ParserCompiler;
 
 class ParserGeneratorTest extends SapphireTest
@@ -13,7 +13,7 @@ class ParserGeneratorTest extends SapphireTest
      */
     protected function getModulePath()
     {
-        return BASE_PATH.'/components';
+        return dirname(__FILE__).'/..';
     }
 
     /**
@@ -23,6 +23,9 @@ class ParserGeneratorTest extends SapphireTest
     public function testParserGenerator()
     {
         $modulePath = $this->getModulePath();
+
+        //
+        include_once(FRAMEWORK_DIR.'/thirdparty/php-peg/Compiler.php');
 
         //
         // Read files to check via composer.json

@@ -2,22 +2,22 @@
 
 namespace SilbinaryWolf\Components\Tests;
 
-use Config;
-use SapphireTest;
-use SSViewer;
-use SSViewer_FromString;
-use ArrayList;
-use ArrayData;
-use TextField;
-use ViewableData;
+use SilverStripe\Core\Config\Config;
+use SilverStripe\Dev\SapphireTest;
+use SilverStripe\View\SSViewer;
+use SilverStripe\View\SSViewer_FromString;
+use SilverStripe\ORM\ArrayList;
+use SilverStripe\View\ArrayData;
+use SilverStripe\Forms\TextField;
+use SilverStripe\View\ViewableData;
 
 class ComponentTest extends SapphireTest
 {
     public function setUp()
     {
         parent::setUp();
-        Config::inst()->update('SSViewer', 'source_file_comments', false);
-        Config::inst()->update('SSViewer_FromString', 'cache_template', false);
+        SSViewer::config()->source_file_comments = false;
+        //SSViewer_FromString::config()->cache_template = false;
     }
 
     public function tearDown()
@@ -62,7 +62,7 @@ HTML;
 SSTemplate;
         $resultHTML = SSViewer::fromString($template)->process(null);
         $expectedHTML = <<<HTML
-<button class="btn btn-secondary" type="Test's and Stuff">
+<button class="btn btn-secondary" type="Test&#039;s and Stuff">
     <span class="text">
         No submission's
     </span>
@@ -85,7 +85,7 @@ HTML;
 SSTemplate;
         $resultHTML = SSViewer::fromString($template)->process(null);
         $expectedHTML = <<<HTML
-<button class="btn btn-secondary" type="Test\'s and Stuff">
+<button class="btn btn-secondary" type="Test\&#039;s and Stuff">
     <span class="text">
         No submission's
     </span>

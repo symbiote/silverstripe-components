@@ -2,8 +2,8 @@
 
 namespace SilbinaryWolf\Components;
 
-use Injector;
-use SSTemplateParser;
+use SilverStripe\Core\Injector\Injector;
+use SilverStripe\View\SSTemplateParser;
 
 /*!* !insert_autogen_warning */
 

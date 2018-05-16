@@ -2,9 +2,8 @@
 
 namespace SilbinaryWolf\Components;
 
-use SilbinaryWolf\Components\Tests\ComponentTest;
-use ViewableData;
 use Exception;
+use SilverStripe\View\ViewableData;
 
 class ComponentData extends ViewableData
 {
