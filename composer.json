@@ -23,7 +23,7 @@
     "scripts": {
         "phpstan": "bash ../../../vendor/bin/phpstan analyse src/ tests/ -c \".phpstan.neon\" -a \"tests/bootstrap-phpstan.php\" --level 3",
         "phpcbf": "phpcbf --ignore=SilbinaryWolf/Components/ComponentTemplateParser.php src/ tests/",
-        "php-peg": "php ../../silverstripe/framework/thirdparty/php-peg/cli.php ./src/SilbinaryWolf/Components/ComponentTemplateParser.php.inc > ./src/SilbinaryWolf/Components/ComponentTemplateParser.php"
+        "php-peg": "php ../../silverstripe/framework/thirdparty/php-peg/cli.php ./src/SilbinaryWolf/Components/ComponentTemplateParser.peg > ./src/SilbinaryWolf/Components/ComponentTemplateParser.php"
     },
     "autoload": {
         "psr-4": {
