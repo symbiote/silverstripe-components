@@ -13,6 +13,7 @@ use Debug;
 use SS_List;
 use DataObject;
 use StringField;
+use Text;
 
 class ComponentService
 {
@@ -144,6 +145,9 @@ PHP;
         if (count($parts) === 1) {
             if (!($parts[0] instanceof StringField)) {
                 return $parts[0];
+            }
+            if (($parts[0] instanceof Text)) {
+                return $parts[0]->RAW();
             }
         }
         return Injector::inst()->createWithArgs('SilbinaryWolf\Components\DBComponentField', array($name, $parts));
