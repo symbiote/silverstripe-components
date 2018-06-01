@@ -18,7 +18,12 @@ class DBComponentField extends Text
      * @var array
      */
     private static $text_property_casting = array(
-        'getAttributesHTML' => true,
+        // NOTE(Jake): 2018-06-01
+        //
+        // No longer needed due to the fix that uses:
+        // - if (($parts[0] instanceof Text)) { return $parts[0]->RAW();}
+        //
+        //'getAttributesHTML' => true,
     );
 
     /**
