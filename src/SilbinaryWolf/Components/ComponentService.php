@@ -15,6 +15,10 @@ use SilverStripe\ORM\FieldType\DBString;
 
 class ComponentService
 {
+    public $componentTemplatePaths = [
+        'components'
+    ];
+
     /**
      * @param array            $res
      * @param SSTemplateParser $parser
@@ -158,13 +162,18 @@ PHP;
      * @param  SSViewer_Scope $scope
      * @return DBHTMLText
      */
-    public function renderComponent($name, array $props, SSViewer_Scope $scope)
+    public function renderComponent($name, array $props, SSViewer_Scope $scope = null)
     {
-        $templates = [
-            ["type" => "components", $name],
-            ["type" => "Includes", $name],
-            $name
-        ];
+        $templates = [];
+        foreach ($this->componentTemplatePaths as $path) {
+            $templates[] = ['type' => $path, $name];
+        }
+
+        // hardcoded default locations that need to come after the configurable
+        // ones defined above
+        $templates[] = ["type" => "Includes", $name];
+        $templates[] = $name;
+
         $result = Injector::inst()->createWithArgs(SSViewer::class, [$templates]);
         $data = new ComponentData($name, $props);
         $result = $result->process($data);

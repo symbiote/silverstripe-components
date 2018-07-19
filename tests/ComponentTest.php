@@ -10,6 +10,8 @@ use SilverStripe\ORM\ArrayList;
 use SilverStripe\View\ArrayData;
 use SilverStripe\Forms\TextField;
 use SilverStripe\View\ViewableData;
+use SilverStripe\Core\Injector\Injector;
+use SilbinaryWolf\Components\ComponentService;
 
 class ComponentTest extends SapphireTest
 {
@@ -23,6 +25,30 @@ class ComponentTest extends SapphireTest
     public function tearDown()
     {
         parent::tearDown();
+    }
+
+    public function testComponentLookup()
+    {
+        $service = new ComponentService();
+        $service->componentTemplatePaths = [
+            'components/subfolder'
+        ];
+
+        try {
+
+            $resultHTML = $service->renderComponent('SubComponent', []);
+        } catch (\Exception $e) {
+            $this->assertTrue(strpos($e->getMessage(), "None of the following templates could be found") !== false);
+        }
+
+        $service->componentTemplatePaths = [
+            'components/subfolder'
+        ];
+
+        $resultHTML = $service->renderComponent('SubComponent', [], null);
+
+        $expected = '<button class="subcomponent">Text</button>';
+        $this->assertEquals($expected, trim($resultHTML->getValue()));
     }
 
     /**
@@ -192,7 +218,7 @@ HTML;
         $resultHTML = SSViewer::fromString($template)->process(
             new ArrayData(
                 array(
-                'Field' => $formField,
+                    'Field' => $formField,
                 )
             )
         );
@@ -232,7 +258,7 @@ HTML;
         $resultHTML = SSViewer::fromString($template)->process(
             new ArrayData(
                 array(
-                'MenuList' => $list,
+                    'MenuList' => $list,
                 )
             )
         );
@@ -279,10 +305,10 @@ HTML;
         $resultHTML = SSViewer::fromString($template)->process(
             new ArrayData(
                 array(
-                'MyRecord' => $record,
-                'MyArrayData' => new ArrayData(array(
-                    'Title' => 'ArrayData Title 2'
-                ))
+                    'MyRecord' => $record,
+                    'MyArrayData' => new ArrayData(array(
+                        'Title' => 'ArrayData Title 2'
+                    ))
                 )
             )
         );
@@ -320,7 +346,7 @@ HTML;
         $resultHTML = SSViewer::fromString($template)->process(
             new ArrayData(
                 array(
-                'Field' => $formField,
+                    'Field' => $formField,
                 )
             )
         );
