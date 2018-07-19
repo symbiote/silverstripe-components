@@ -35,7 +35,6 @@ class ComponentTest extends SapphireTest
         ];
 
         try {
-
             $resultHTML = $service->renderComponent('SubComponent', []);
         } catch (\Exception $e) {
             $this->assertTrue(strpos($e->getMessage(), "None of the following templates could be found") !== false);
