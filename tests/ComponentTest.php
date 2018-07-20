@@ -10,8 +10,8 @@ use SilverStripe\ORM\ArrayList;
 use SilverStripe\View\ArrayData;
 use SilverStripe\Forms\TextField;
 use SilverStripe\View\ViewableData;
-use SilverStripe\Core\Injector\Injector;
 use SilbinaryWolf\Components\ComponentService;
+use SilverStripe\View\SSViewer_Scope;
 
 class ComponentTest extends SapphireTest
 {
@@ -27,15 +27,16 @@ class ComponentTest extends SapphireTest
         parent::tearDown();
     }
 
-    public function testComponentLookup()
+    public function testCustomizedComponentPath()
     {
         $service = new ComponentService();
         $service->componentTemplatePaths = [
             'components/subfolder'
         ];
 
+        $scope = new SSViewer_Scope(null);
         try {
-            $resultHTML = $service->renderComponent('SubComponent', []);
+            $resultHTML = $service->renderComponent('SubComponent', [], $scope);
         } catch (\Exception $e) {
             $this->assertTrue(strpos($e->getMessage(), "None of the following templates could be found") !== false);
         }
@@ -44,7 +45,7 @@ class ComponentTest extends SapphireTest
             'components/subfolder'
         ];
 
-        $resultHTML = $service->renderComponent('SubComponent', [], null);
+        $resultHTML = $service->renderComponent('SubComponent', [], $scope);
 
         $expected = '<button class="subcomponent">Text</button>';
         $this->assertEquals($expected, trim($resultHTML->getValue()));

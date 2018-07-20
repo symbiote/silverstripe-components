@@ -162,7 +162,7 @@ PHP;
      * @param  SSViewer_Scope $scope
      * @return DBHTMLText
      */
-    public function renderComponent($name, array $props, SSViewer_Scope $scope = null)
+    public function renderComponent($name, array $props, SSViewer_Scope $scope)
     {
         $templates = [];
         foreach ($this->componentTemplatePaths as $path) {
