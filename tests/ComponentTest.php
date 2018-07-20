@@ -30,7 +30,7 @@ class ComponentTest extends SapphireTest
 
     public function testCustomizedComponentPath()
     {
-        Config::inst()->update(ComponentService::class, 'component_paths', [
+        Config::modify()->set(ComponentService::class, 'component_paths', [
             'components/subfolder'
         ]);
 
