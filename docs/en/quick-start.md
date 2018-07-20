@@ -27,3 +27,23 @@
 	</span>
 </:MyComponentButton>
 ```
+
+## Configuration
+
+Components are looked up from the {theme_dir}/templates/components path by
+default. If you wish to further separate this location, you must let the
+`ComponentService` know what these sub-paths are by setting the 
+`component_paths` configuration option, for example
+
+```
+
+---
+Name: component_overrides
+---
+SilbinaryWolf\Components\ComponentService:
+  component_paths:
+    - components/atoms
+    - components/molecules
+    - components/organisms
+
+```

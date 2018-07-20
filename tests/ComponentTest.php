@@ -12,6 +12,7 @@ use SilverStripe\Forms\TextField;
 use SilverStripe\View\ViewableData;
 use SilbinaryWolf\Components\ComponentService;
 use SilverStripe\View\SSViewer_Scope;
+use SilverStripe\Core\Injector\Injector;
 
 class ComponentTest extends SapphireTest
 {
@@ -29,10 +30,11 @@ class ComponentTest extends SapphireTest
 
     public function testCustomizedComponentPath()
     {
-        $service = new ComponentService();
-        $service->componentTemplatePaths = [
+        Config::inst()->update(ComponentService::class, 'component_paths', [
             'components/subfolder'
-        ];
+        ]);
+
+        $service = Injector::inst()->get(ComponentService::class);
 
         $scope = new SSViewer_Scope(null);
         try {

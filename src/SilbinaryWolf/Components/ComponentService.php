@@ -12,10 +12,11 @@ use SilverStripe\View\ArrayData;
 use SilverStripe\ORM\SS_List;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\FieldType\DBString;
+use SilverStripe\Core\Config\Config;
 
 class ComponentService
 {
-    public $componentTemplatePaths = [
+    private static $component_paths = [
         'components'
     ];
 
@@ -165,7 +166,7 @@ PHP;
     public function renderComponent($name, array $props, SSViewer_Scope $scope)
     {
         $templates = [];
-        foreach ($this->componentTemplatePaths as $path) {
+        foreach (Config::inst()->get(__CLASS__, 'component_paths') as $path) {
             $templates[] = ['type' => $path, $name];
         }
 
