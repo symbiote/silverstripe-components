@@ -384,6 +384,35 @@ SSTemplate;
     }
 
     /**
+     * SilverStripe 3.X problem only.
+     */
+    public function testEnsureFormMessageIsCastingCorrectly()
+    {
+        $template = <<<SSTemplate
+<:MyFormMessageTest
+    message="\$Field.Message"
+/>
+SSTemplate;
+        $expectedHTML = <<<HTML
+<div>The field "Name" is required.</div>
+HTML;
+        $formField = new TextField("Name", "Name");
+        $formField->setError("The field \"Name\" is required.", "error");
+        $resultHTML = SSViewer::fromString($template)->process(
+            new ArrayData(
+                array(
+                'Field' => $formField,
+                )
+            )
+        );
+        $this->assertEqualIgnoringWhitespace(
+            $expectedHTML,
+            $resultHTML,
+            'Unexpected output. If you got \'The field &quot;Name&quot; is required\', then this test is definitely broken.'
+        );
+    }
+
+    /**
      * Taken from "framework\tests\view\SSViewerTest.php"
      */
     protected function assertEqualIgnoringWhitespace($a, $b, $message = '')
