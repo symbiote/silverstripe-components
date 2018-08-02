@@ -16,6 +16,18 @@ class ComponentData extends ViewableData
     protected $____name;
 
     /**
+     * Various ViewableData properties such as:
+     * - $failover
+     * - $customisedObject
+     * - $extension_instances
+     * - $beforeExtendCallbacks
+     *
+     * @var \stdClass
+     */
+    protected $____viewabledata;
+
+
+    /**
      * NOTE(Jake): 2018-04-06
      *
      * We use a custom class instead of ArrayData to avoid
@@ -27,9 +39,22 @@ class ComponentData extends ViewableData
     public function __construct($name, array $props)
     {
         parent::__construct();
+
+        // NOTE(Jake): 2018-08-02
+        //
+        // Don't allow use of invalid properties.
+        // ie. You can't pass "failover" as it's used by ViewableData
+        //
+        foreach (get_object_vars($this) as $prop => $value) {
+            if (isset($props[$prop])) {
+                throw new ComponentReservedPropertyException($name, $prop);
+            }
+        }
+
+        //
         $this->____name = $name;
-        foreach ($props as $name => $value) {
-            $this->{$name} = $value;
+        foreach ($props as $prop => $value) {
+            $this->{$prop} = $value;
         }
     }
 

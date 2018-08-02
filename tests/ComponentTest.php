@@ -2,6 +2,7 @@
 
 namespace SilbinaryWolf\Components\Tests;
 
+use Exception;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Dev\SapphireTest;
 use SilverStripe\View\SSViewer;
@@ -10,9 +11,10 @@ use SilverStripe\ORM\ArrayList;
 use SilverStripe\View\ArrayData;
 use SilverStripe\Forms\TextField;
 use SilverStripe\View\ViewableData;
-use SilbinaryWolf\Components\ComponentService;
 use SilverStripe\View\SSViewer_Scope;
 use SilverStripe\Core\Injector\Injector;
+use SilbinaryWolf\Components\ComponentService;
+use SilbinaryWolf\Components\ComponentReservedPropertyException;
 
 class ComponentTest extends SapphireTest
 {
@@ -353,6 +355,60 @@ HTML;
             )
         );
         $this->assertEqualIgnoringWhitespace($expectedHTML, $resultHTML, 'Unexpected output');
+    }
+
+    /**
+     * If you don't pass a $class variable in, $class will end
+     * up defaulting to 'SilbinaryWolf\Components\ComponentData' without
+     * additional logic that prevents that (found in ComponentData class)
+     *
+     * This is most likely not necessary in SilverStripe 4.X, but it was
+     * a necessary check in SilverStripe 3.X
+     */
+    public function testComponentUsingClassButNotPassedIn()
+    {
+        $template = <<<SSTemplate
+<:ComponentUsingClassButNotPassedIn />
+SSTemplate;
+        $expectedHTML = <<<HTML
+<div class=""></div>
+HTML;
+        $resultHTML = SSViewer::fromString($template)->process(null);
+        $this->assertEqualIgnoringWhitespace($expectedHTML, $resultHTML, 'Unexpected output');
+    }
+
+    /**
+     * If you don't pass a $class variable in, $class will end
+     * up defaulting to 'SilbinaryWolf\Components\ComponentData' without
+     * additional logic that prevents that (found in ComponentData class)
+     *
+     * This is most likely not necessary in SilverStripe 4.X, but it was
+     * a necessary check in SilverStripe 3.X
+     *
+     */
+    public function testCatchReservedProperty()
+    {
+        $template = <<<SSTemplate
+<:EmptyComponent
+    failover="This is reserved by Viewable Data!"
+/>
+SSTemplate;
+        try {
+            $resultHTML = SSViewer::fromString($template)->process(null);
+        } catch (ComponentReservedPropertyException $e) {
+            // Success path!
+            $expectedMessage = 'You cannot use the property "failover" on "EmptyComponent" as it\'s already used by ViewableData.';
+            $this->assertEquals(
+                $expectedMessage,
+                $e->getMessage(),
+                'Unexpected exception message given. Was this changed? If so, please update the expected value above.'
+            );
+            return;
+        } catch (Exception $e) {
+            $this->fail('Incorrect Exception caught. Expected '.ComponentReservedPropertyException::class.' to be thrown.');
+            return;
+        }
+        $this->fail('No exception thrown. Expected '.ComponentReservedPropertyException::class.' to be thrown.');
     }
 
     /**
