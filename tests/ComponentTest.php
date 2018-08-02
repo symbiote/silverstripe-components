@@ -2,6 +2,7 @@
 
 namespace SilbinaryWolf\Components\Tests;
 
+use Exception;
 use Config;
 use SapphireTest;
 use SSViewer;
