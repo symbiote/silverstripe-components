@@ -5,6 +5,7 @@ namespace SilbinaryWolf\Components;
 use SSViewer;
 use SSViewer_Scope;
 use HTMLText;
+use Text;
 use Injector;
 use SSTemplateParser;
 use SSTemplateParseException;
@@ -144,6 +145,9 @@ PHP;
         if (count($parts) === 1) {
             if (!($parts[0] instanceof StringField)) {
                 return $parts[0];
+            }
+            if (($parts[0] instanceof Text)) {
+                return $parts[0]->RAW();
             }
         }
         return Injector::inst()->createWithArgs('SilbinaryWolf\Components\DBComponentField', array($name, $parts));
