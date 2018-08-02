@@ -377,10 +377,10 @@ SSTemplate;
             );
             return;
         } catch (Exception $e) {
-            $this->fail('Incorrect Exception caught. Expected '.ComponentReservedPropertyException::class.' to be thrown.');
+            $this->fail('Incorrect Exception caught. Expected '.'\SilbinaryWolf\Components\ComponentReservedPropertyException'.' to be thrown.');
             return;
         }
-        $this->fail('No exception thrown. Expected '.ComponentReservedPropertyException::class.' to be thrown.');
+        $this->fail('No exception thrown. Expected '.'\SilbinaryWolf\Components\ComponentReservedPropertyException'.' to be thrown.');
     }
 
     /**
