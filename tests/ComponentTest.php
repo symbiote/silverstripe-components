@@ -418,6 +418,12 @@ SSTemplate;
      */
     public function testJSONProperty()
     {
+        // NOTE(Jake): 2018-08-03
+        //
+        // We're testing:
+        // - The general correctness
+        // - Using single quotes in the template.
+        //
         $template = <<<SSTemplate
 <:JSONSyntaxTest
     _json='{
@@ -446,6 +452,39 @@ SSTemplate;
             <h2>This is the second card</h2>
             <p>This is the second card summary</p>
             <a href="https://link2.com">Read more</a>
+        </div>
+HTML;
+
+        $resultHTML = SSViewer::fromString($template)->process(null);
+        $this->assertEqualIgnoringWhitespace($expectedHTML, $resultHTML, 'Unexpected output');
+    }
+
+    public function testJSONEscapedCharacters()
+    {
+        $template = <<<SSTemplate
+<:JSONSyntaxTest
+    _json='{
+        "Cards": [
+            {
+                "Title": "We are testing escaping single quote\'s"
+            },
+            {
+                "Title": "We are \"testing\" escaping double quotes"
+            }
+        ]
+    }'
+/>
+SSTemplate;
+        $expectedHTML = <<<HTML
+        <div>
+            <h2>We are testing escaping single quote&#039;s</h2>
+            <p></p>
+            <a href="">Read more</a>
+        </div>
+        <div>
+            <h2>We are &quot;testing&quot; escaping double quotes</h2>
+            <p></p>
+            <a href="">Read more</a>
         </div>
 HTML;
 

@@ -72,6 +72,14 @@ class ComponentService
                         $jsonString = trim($jsonString);
                         $jsonString = trim($jsonString, '\'');
                         $jsonString = trim($jsonString, '"');
+                        // NOTE(Jake): 2018-08-03
+                        //
+                        // - Allow use of ' characters.
+                        // - Allow use of " characters.
+                        //
+                        // See ComponentTest::testJSONEscapedCharacters() for examples.
+                        //
+                        $jsonString = str_replace(array("\\\\\\'", '\\\\"'), array("'", '\\"'), $jsonString);
                         $jsonData = @json_decode($jsonString, true);
                         if (json_last_error() !== JSON_ERROR_NONE) {
                             // todo(Jake): 2018-08-03
