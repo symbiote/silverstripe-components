@@ -6,6 +6,51 @@ Execute this from the project directory.
 vendor/bin/phpunit components/tests
 ```
 
+# Feed in JSON data
+
+With this module, you're able to feed in arbitrary JSON data using the special \_json property.
+This is useful for when you want to mockup examples of a component using deeply nested data.
+
+This JSON cannot utilize variables or if-statements within it like other properties as the JSON is parsed and converted to an ArrayList when generating the template PHP code. (See below)
+
+Examples are below.
+
+**components/JSONSyntaxTest.ss**
+```
+<% loop $Cards %>
+    <div>
+        <h2>$Title</h2>
+        <p>$Summary</p>
+        <a href="$Link">Read more</a>
+    </div>
+<% end_loop %>
+```
+
+**Page.ss**
+```
+<header class="header">
+    My Header
+</header>
+<main role="main">
+    <:JSONSyntaxTest
+        _json='{
+            "Cards": [
+                {
+                    "Title": "This is the first card",
+                    "Summary": "This is the first card summary",
+                    "Link": "https://link1.com"
+                },
+                {
+                    "Title": "This is the second card",
+                    "Summary": "This is the second card summary",
+                    "Link": "https://link2.com"
+                }
+            ]
+        }'
+    />
+</main>
+```
+
 # Example template cache output
 
 Here is an example of how this component template extension gets translated into the cached SilverStripe template files.
@@ -36,4 +81,26 @@ $val .= Injector::inst()->get('SilbinaryWolf\Components\ComponentService')->rend
 unset($_props); 
 $val .= '
 ';
+```
+
+**JSON Output:**
+```
+$_props = array();
+$_props['Cards'] = array();
+$_props['Cards'][] = new SilverStripe\ORM\ArrayList(array (
+  0 => 
+  array (
+    'Title' => 'This is the first card',
+    'Summary' => 'This is the first card summary',
+    'Link' => 'https://link1.com',
+  ),
+  1 => 
+  array (
+    'Title' => 'This is the second card',
+    'Summary' => 'This is the second card summary',
+    'Link' => 'https://link2.com',
+  ),
+));
+$_props['Cards'] = \SilverStripe\Core\Injector\Injector::inst()->get(SilbinaryWolf\Components\ComponentService::class)->createProperty('Cards', $_props['Cards']);
+$val .= \SilverStripe\Core\Injector\Injector::inst()->get(SilbinaryWolf\Components\ComponentService::class)->renderComponent('JSONSyntaxTest', $_props, $scope);
 ```
