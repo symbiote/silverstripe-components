@@ -490,7 +490,7 @@ SSTemplate;
             );
             return;
         } catch (Exception $e) {
-            $this->fail('Incorrect Exception caught. Expected '.SSTemplateParseException::class.' to be thrown.');
+            $this->fail('Incorrect Exception caught. Expected '.'SSTemplateParseException'.' to be thrown.');
             return;
         }
     }
