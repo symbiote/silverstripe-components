@@ -22,7 +22,8 @@
     },
     "scripts": {
         "phpstan": "bash ../../../vendor/bin/phpstan analyse src/ tests/ -c \".phpstan.neon\" -a \"tests/bootstrap-phpstan.php\" --level 3",
-        "phpcbf": "phpcbf --ignore=SilbinaryWolf/Components/ComponentTemplateParser.php src/ tests/",
+        "phpcs": "phpcs src/SilbinaryWolf/Components/ tests/",
+        "phpcbf": "phpcbf --ignore=SilbinaryWolf/Components/ComponentTemplateParser.php src/SilbinaryWolf/Components/ tests/",
         "php-peg": "php ../../silverstripe/framework/thirdparty/php-peg/cli.php ./src/SilbinaryWolf/Components/ComponentTemplateParser.peg > ./src/SilbinaryWolf/Components/ComponentTemplateParser.php"
     },
     "autoload": {
@@ -37,7 +38,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "2.0.x-dev"
+            "dev-master": "2.2.x-dev"
         }
     },
     "prefer-stable": true,
