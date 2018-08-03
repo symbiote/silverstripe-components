@@ -2,6 +2,7 @@
 
 namespace SilbinaryWolf\Components;
 
+use Exception;
 use SSViewer;
 use SSViewer_Scope;
 use HTMLText;
