@@ -412,6 +412,47 @@ SSTemplate;
     }
 
     /**
+     * Test custom JSON syntax that allows arbitrary JSON.
+     *
+     */
+    public function testJSONProperty()
+    {
+        $template = <<<SSTemplate
+<:JSONSyntaxTest
+    _json='{
+        "Cards": [
+            {
+                "Title": "This is the first card",
+                "Summary": "This is the first card summary",
+                "Link": "https://link1.com"
+            },
+            {
+                "Title": "This is the second card",
+                "Summary": "This is the second card summary",
+                "Link": "https://link2.com"
+            }
+        ]
+    }'
+/>
+SSTemplate;
+        $expectedHTML = <<<HTML
+        <div>
+            <h2>This is the first card</h2>
+            <p>This is the first card summary</p>
+            <a href="https://link1.com">Read more</a>
+        </div>
+        <div>
+            <h2>This is the second card</h2>
+            <p>This is the second card summary</p>
+            <a href="https://link2.com">Read more</a>
+        </div>
+HTML;
+
+        $resultHTML = SSViewer::fromString($template)->process(null);
+        $this->assertEqualIgnoringWhitespace($expectedHTML, $resultHTML, 'Unexpected output');
+    }
+
+    /**
      * Taken from "framework\tests\view\SSViewerTest.php"
      */
     protected function assertEqualIgnoringWhitespace($a, $b, $message = '')

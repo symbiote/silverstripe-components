@@ -10,12 +10,15 @@ use SilverStripe\View\SSTemplateParser;
 use SilverStripe\View\SSTemplateParseException;
 use SilverStripe\View\ArrayData;
 use SilverStripe\ORM\SS_List;
+use SilverStripe\ORM\ArrayList;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\FieldType\DBString;
 use SilverStripe\Core\Config\Config;
 
 class ComponentService
 {
+    const DEBUG_JSON_CODE_OUTPUT = false;
+
     private static $component_paths = [
         'components'
     ];
@@ -28,6 +31,7 @@ class ComponentService
     public function generateTemplateCode(array $res, $parser)
     {
         $thisClassIdent = self::class.'::class';
+        $debugHasUsedJSON = false;
 
         $componentName = $res['ComponentName']['text'];
         $arguments = array();
@@ -54,42 +58,76 @@ class ComponentService
                 throw new SSTemplateParseException('Cannot use < % loop % > inside property "'.$propertyName.'" on component "'.$componentName.'"', $parser);
             }
 
-            // Modify provided PHP code
-            $ifValueParts = explode('[_CPB]', $valueParts);
-            $phpCodeValueParts = array();
-            foreach ($ifValueParts as $value) {
-                $value = trim($value);
-                // NOTE(Jake): 2018-04-29
-                //
-                // Remove blank string concats from template. This is to avoid an object from
-                // being cast to a string, like getAttributesHTML().
-                //
-                // We want to avoid this so that in SS4, there attributes aren't double quoted as
-                // HTML is escaped by default.
-                //
-                $valueParts = explode('[_CFP]', $value);
-                foreach ($valueParts as $valuePart) {
-                    if ($valuePart === "''") {
-                        // Skip empty string parts
-                        continue;
-                    }
-                    $valuePart = trim($valuePart);
-                    if (strpos($valuePart, '$val .=') !== false) {
-                        if (strpos($valuePart, 'XML_val(') !== false) {
-                            // NOTE(Jake): 2018-04-29, This hack is for inside an <% if %>
-                            $valuePart = str_replace(array('XML_val(', ';'), array('obj(', '->self();'), $valuePart);
+            if ($propertyName &&
+                $propertyName[0] === '_') {
+                 // Handle special variable (ie. prefixed with _)
+                $propertyName = substr($propertyName, 1);
+                switch ($propertyName) {
+                    case 'json':
+                        $jsonString = $valueParts;
+                        $jsonString = trim($jsonString);
+                        $jsonString = trim($jsonString, '\'');
+                        $jsonString = trim($jsonString, '"');
+                        $jsonData = @json_decode($jsonString, true);
+                        if (json_last_error() !== JSON_ERROR_NONE) {
+                            // todo(Jake): 2018-08-03
+                            //
+                            // See if we can use an alterate parser that can give better error messages.
+                            //
+                            throw new SSTemplateParseException('JSON error: '.json_last_error_msg()."\n".$jsonString, $parser);
                         }
-                        $valuePart = str_replace('$val .=', '$_props[\''.$propertyName.'\'][] =', $valuePart);
+                        foreach ($jsonData as $propertyName => $value) {
+                            if (is_array($value)) {
+                                $value = 'new '.ArrayList::class.'('.var_export($value, true).')';
+                            }
+                            $phpCodeValueParts[] = "\$_props['".$propertyName."'][] = ".$value.";";
+                        }
+                        $debugHasUsedJSON = true;
+                    break;
+
+                    default:
+                        throw new SSTemplateParseException('Invalid special property type: '.$propertyName.', special properties have a _ prefix.', $parser);
+                    break;
+                }
+            } else {
+                // Modify provided PHP code
+                $ifValueParts = explode('[_CPB]', $valueParts);
+                $phpCodeValueParts = array();
+                foreach ($ifValueParts as $value) {
+                    $value = trim($value);
+                    // NOTE(Jake): 2018-04-29
+                    //
+                    // Remove blank string concats from template. This is to avoid an object from
+                    // being cast to a string, like getAttributesHTML().
+                    //
+                    // We want to avoid this so that in SS4, there attributes aren't double quoted as
+                    // HTML is escaped by default.
+                    //
+                    $valueParts = explode('[_CFP]', $value);
+                    foreach ($valueParts as $valuePart) {
+                        if ($valuePart === "''") {
+                            // Skip empty string parts
+                            continue;
+                        }
+                        $valuePart = trim($valuePart);
+                        if (strpos($valuePart, '$val .=') !== false) {
+                            if (strpos($valuePart, 'XML_val(') !== false) {
+                                // NOTE(Jake): 2018-04-29, This hack is for inside an <% if %>
+                                $valuePart = str_replace(array('XML_val(', ';'), array('obj(', '->self();'), $valuePart);
+                            }
+                            $valuePart = str_replace('$val .=', '$_props[\''.$propertyName.'\'][] =', $valuePart);
+                            $phpCodeValueParts[] = $valuePart;
+                            //$phpCode .= $valuePart."\n";
+                            continue;
+                        }
+                        $valuePart = "\$_props['".$propertyName."'][] = ".$valuePart.";";
                         $phpCodeValueParts[] = $valuePart;
                         //$phpCode .= $valuePart."\n";
-                        continue;
                     }
-                    $valuePart = "\$_props['".$propertyName."'][] = ".$valuePart.";";
-                    $phpCodeValueParts[] = $valuePart;
-                    //$phpCode .= $valuePart."\n";
                 }
             }
 
+            //
             $phpCode = "";
             if (count($phpCodeValueParts) === 1) {
                 //$phpCode .= "\$_props['".$propertyName."'] = \$_props['".$propertyName."'][0];\n";
@@ -128,6 +166,11 @@ class ComponentService
 \$val .= \SilverStripe\Core\Injector\Injector::inst()->get({$thisClassIdent})->renderComponent('$componentName', \$_props, \$scope);
 unset(\$_props);
 PHP;
+        if (self::DEBUG_JSON_CODE_OUTPUT &&
+            $debugHasUsedJSON) {
+            var_dump($result);
+            throw new Exception('Debug stop.');
+        }
         return $result;
     }
 
