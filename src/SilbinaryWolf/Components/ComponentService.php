@@ -58,10 +58,13 @@ class ComponentService
                 throw new SSTemplateParseException('Cannot use < % loop % > inside property "'.$propertyName.'" on component "'.$componentName.'"', $parser);
             }
 
+            //
+            $phpCodeValueParts = array();
             if ($propertyName &&
                 $propertyName[0] === '_') {
-                 // Handle special variable (ie. prefixed with _)
-                $propertyName = substr($propertyName, 1);
+                // Handle special variable (ie. prefixed with _)
+                $propertyNameWithPrefix = $propertyName;
+                $propertyName = substr($propertyNameWithPrefix, 1);
                 switch ($propertyName) {
                     case 'json':
                         $jsonString = $valueParts;
@@ -74,7 +77,12 @@ class ComponentService
                             //
                             // See if we can use an alterate parser that can give better error messages.
                             //
-                            throw new SSTemplateParseException('JSON error: '.json_last_error_msg()."\n".$jsonString, $parser);
+                            switch (json_last_error()) {
+                                case JSON_ERROR_SYNTAX:
+                                    throw new SSTemplateParseException('JSON Syntax error, did you quote all the property names and remove trailing commas? I suggest running the following through a JSON validator online.'."\n".$jsonString, $parser);
+                                break;
+                            }
+                            throw new SSTemplateParseException('JSON '.json_last_error_msg()."\n".$jsonString, $parser);
                         }
                         foreach ($jsonData as $propertyName => $value) {
                             if (is_array($value)) {
@@ -86,13 +94,12 @@ class ComponentService
                     break;
 
                     default:
-                        throw new SSTemplateParseException('Invalid special property type: '.$propertyName.', special properties have a _ prefix.', $parser);
+                        throw new SSTemplateParseException('Invalid special property type: "'.$propertyNameWithPrefix.'", properties that start with a _ are reserved for special functionality. Available special property types are: "_json".', $parser);
                     break;
                 }
             } else {
                 // Modify provided PHP code
                 $ifValueParts = explode('[_CPB]', $valueParts);
-                $phpCodeValueParts = array();
                 foreach ($ifValueParts as $value) {
                     $value = trim($value);
                     // NOTE(Jake): 2018-04-29

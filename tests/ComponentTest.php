@@ -13,6 +13,7 @@ use SilverStripe\Forms\TextField;
 use SilverStripe\View\ViewableData;
 use SilverStripe\View\SSViewer_Scope;
 use SilverStripe\Core\Injector\Injector;
+use SilverStripe\View\SSTemplateParseException;
 use SilbinaryWolf\Components\ComponentService;
 use SilbinaryWolf\Components\ComponentReservedPropertyException;
 
@@ -450,6 +451,47 @@ HTML;
 
         $resultHTML = SSViewer::fromString($template)->process(null);
         $this->assertEqualIgnoringWhitespace($expectedHTML, $resultHTML, 'Unexpected output');
+    }
+
+    /**
+     * Test that the error message given when using JSON is useful when debugging.
+     *
+     */
+    public function testJSONPropertyErrorHandling()
+    {
+        $template = <<<SSTemplate
+<:JSONSyntaxTest
+    _json='{
+        "Cards": [
+            {
+                "Title": "This is the first card",
+                "Summary": "This is the first card summary",
+                "Link": "https://link1.com",
+            },
+            {
+                "Title": "This is the second card",
+                "Summary": "This is the second card summary",
+                "Link": "https://link2.com"
+            }
+        ]
+    }'
+/>
+SSTemplate;
+        try {
+            SSViewer::fromString($template)->process(null);
+        } catch (SSTemplateParseException $e) {
+            // Success path!
+            $expectedMessage = 'Parse error in template on line 16. Error was: JSON Syntax error, did you quote all the property names and remove trailing commas? I suggest running the following through a JSON validator online.';
+            $this->assertContains(
+                $expectedMessage,
+                $e->getMessage(),
+                'Unexpected exception message given. Was this changed? If so, please update the expected value above.'
+            );
+            return;
+        } catch (Exception $e) {
+            $this->fail('Incorrect Exception caught. Expected '.SSTemplateParseException::class.' to be thrown.');
+            return;
+        }
     }
 
     /**
