@@ -81,7 +81,7 @@ class ComponentService
                             switch (json_last_error()) {
                                 case JSON_ERROR_SYNTAX:
                                     throw new SSTemplateParseException('JSON Syntax error, did you quote all the property names and remove trailing commas? I suggest running the following through a JSON validator online.'."\n".$jsonString, $parser);
-                                break;
+                                    break;
                             }
                             throw new SSTemplateParseException('JSON '.json_last_error_msg()."\n".$jsonString, $parser);
                         }
@@ -92,11 +92,11 @@ class ComponentService
                             $phpCodeValueParts[] = "\$_props['".$propertyName."'][] = ".$value.";";
                         }
                         $debugHasUsedJSON = true;
-                    break;
+                        break;
 
                     default:
                         throw new SSTemplateParseException('Invalid special property type: "'.$propertyNameWithPrefix.'", properties that start with a _ are reserved for special functionality. Available special property types are: "_json".', $parser);
-                    break;
+                        break;
                 }
             } else {
                 // Modify provided PHP code
