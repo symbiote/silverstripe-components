@@ -418,12 +418,6 @@ SSTemplate;
      */
     public function testJSONProperty()
     {
-        // NOTE(Jake): 2018-08-03
-        //
-        // We're testing:
-        // - The general correctness
-        // - Using single quotes in the template.
-        //
         $template = <<<SSTemplate
 <:JSONSyntaxTest
     _json='{
