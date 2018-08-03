@@ -2,6 +2,7 @@
 
 namespace SilbinaryWolf\Components;
 
+use Exception;
 use SilverStripe\View\SSViewer;
 use SilverStripe\View\SSViewer_Scope;
 use SilverStripe\ORM\FieldType\DBHTMLText;
