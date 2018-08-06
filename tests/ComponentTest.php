@@ -527,6 +527,64 @@ SSTemplate;
         }
     }
 
+    public function testJSONDeeplyNested()
+    {
+        $template = <<<SSTemplate
+<:JSONNestedTest
+    _json='{
+        "SubMenu": [
+            {
+                "Title": "Subnav item number one with children",
+                "Link": "https://google.com",
+                "LinkingMode": "section",
+                "Children": [
+                    {
+                        "Title": "Tertiary item number one",
+                        "Link": "https://google.com",
+                        "LinkingMode": "link"
+                    },
+                    {
+                        "Title": "Tertiary item number two",
+                        "Link": "https://google.com",
+                        "LinkingMode": "link"
+                    },
+                    {
+                        "Title": "Tertiary item number three",
+                        "Link": "https://google.com",
+                        "LinkingMode": "link"
+                    }
+                ]
+            },
+            {
+                "Title": "Subnav item number two",
+                "Link": "https://google.com",
+                "LinkingMode": "link",
+                "Children": ""
+            },
+            {
+                "Title": "Subnav item number three",
+                "Link": "https://google.com",
+                "LinkingMode": "current",
+                "Children": ""
+            },
+            {
+                "Title": "Subnav item number four",
+                "Link": "https://google.com",
+                "LinkingMode": "link",
+                "Children": ""
+            }
+        ]
+    }'
+/>
+SSTemplate;
+        $expectedHTML = <<<HTML
+        <div></div>
+HTML;
+
+        $resultHTML = SSViewer::fromString($template)->process(null);
+        $this->assertEqualIgnoringWhitespace($expectedHTML, $resultHTML, 'Unexpected output');
+    }
+
     /**
      * Taken from "framework\tests\view\SSViewerTest.php"
      */
