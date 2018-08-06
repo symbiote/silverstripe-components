@@ -95,6 +95,7 @@ class ComponentService
                         }
                         foreach ($jsonData as $propertyName => $value) {
                             if (is_array($value)) {
+                                $value = self::recursivelyConvertFlatArraysToArrayList($value);
                                 $value = 'new '.ArrayList::class.'('.var_export($value, true).')';
                             }
                             $phpCodeValueParts[] = "\$_props['".$propertyName."'][] = ".$value.";";
@@ -243,5 +244,20 @@ PHP;
         // $this->extend('updateRenderComponent', $result, $name, $props, $scope);
         //
         return $result;
+    }
+
+    private static function recursivelyConvertFlatArraysToArrayList(array $array)
+    {
+        foreach ($array as $prop => &$value) {
+            if (is_array($value)) {
+                $value = self::recursivelyConvertFlatArraysToArrayList($value);
+            }
+            unset($value);
+        }
+        if (isset($array[0])) {
+            $array = new ArrayList($array);
+            //$array = 'new '.ArrayList::class.'('.var_export($array, true).')';
+        }
+        return $array;
     }
 }
