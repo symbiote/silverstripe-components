@@ -1,6 +1,6 @@
 <?php
 
-namespace SilbinaryWolf\Components;
+namespace Symbiote\Components;
 
 class ComponentReservedPropertyException extends ComponentException
 {

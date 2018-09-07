@@ -1,6 +1,6 @@
 <?php
 
-namespace SilbinaryWolf\Components;
+namespace Symbiote\Components;
 
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\View\SSTemplateParser;
@@ -155,7 +155,7 @@ PHP;
 
     function Component__finalise(&$res)
     {
-        $res['php'] .= Injector::inst()->get('SilbinaryWolf\\Components\\ComponentService')->generateTemplateCode($res, $this);
+        $res['php'] .= Injector::inst()->get('Symbiote\\Components\\ComponentService')->generateTemplateCode($res, $this);
     }
 
     /*!*

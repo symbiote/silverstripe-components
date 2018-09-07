@@ -1,6 +1,6 @@
 <?php
 
-namespace SilbinaryWolf\Components\Tests;
+namespace Symbiote\Components\Tests;
 
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Dev\SapphireTest;

@@ -48,6 +48,6 @@ before_script:
   - composer install --prefer-dist --no-interaction --no-progress --no-suggest --optimize-autoloader --verbose --profile
 
 script:
-  - if [[ $PHPCS_TEST ]]; then vendor/bin/phpcs --ignore=src/SilbinaryWolf/Components/ComponentTemplateParser.php src/ tests/ -n; fi
+  - if [[ $PHPCS_TEST ]]; then vendor/bin/phpcs --ignore=src/Symbiote/Components/ComponentTemplateParser.php src/ tests/ -n; fi
   - if [[ $PHPSTAN_TEST ]]; then vendor/bin/phpstan analyse src/ tests/ -c ".phpstan.neon" -a "tests/bootstrap-phpstan.php" --level 3; fi
   - vendor/bin/phpunit

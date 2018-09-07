@@ -1,6 +1,6 @@
 <?php
 
-namespace SilbinaryWolf\Components;
+namespace Symbiote\Components;
 
 use Exception;
 use SilverStripe\View\SSViewer;
@@ -155,7 +155,7 @@ class ComponentService
                 foreach ($phpCodeValueParts as $phpCodeValuePart) {
                     $phpCode .= $phpCodeValuePart."\n";
                 }
-                //$phpCode .= "\$_props['".$propertyName."'] = Injector::inst()->createWithArgs('SilbinaryWolf\\Components\\DBComponentField', array('".$propertyName."', \$_props['".$propertyName."']));\n";
+                //$phpCode .= "\$_props['".$propertyName."'] = Injector::inst()->createWithArgs('Symbiote\\Components\\DBComponentField', array('".$propertyName."', \$_props['".$propertyName."']));\n";
             }
             $phpCode .= "\$_props['".$propertyName."'] = \SilverStripe\Core\Injector\Injector::inst()->get({$thisClassIdent})->createProperty('".$propertyName."', \$_props['".$propertyName."']);\n";
             $arguments[$propertyName] = $phpCode;

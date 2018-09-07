@@ -40,7 +40,7 @@ default. If you wish to further separate this location, you must let the
 ---
 Name: component_overrides
 ---
-SilbinaryWolf\Components\ComponentService:
+Symbiote\Components\ComponentService:
   component_paths:
     - components/atoms
     - components/molecules

@@ -1,5 +1,5 @@
 {
-    "name": "silbinarywolf/silverstripe-components",
+    "name": "symbiote/silverstripe-components",
     "description": "Create components using SilverStripe.",
     "type": "silverstripe-vendormodule",
     "keywords": [
@@ -22,25 +22,28 @@
     },
     "scripts": {
         "phpstan": "bash ../../../vendor/bin/phpstan analyse src/ tests/ -c \".phpstan.neon\" -a \"tests/bootstrap-phpstan.php\" --level 3",
-        "phpcs": "phpcs src/SilbinaryWolf/Components/ tests/",
-        "phpcbf": "phpcbf --ignore=SilbinaryWolf/Components/ComponentTemplateParser.php src/SilbinaryWolf/Components/ tests/",
-        "php-peg": "php ../../silverstripe/framework/thirdparty/php-peg/cli.php ./src/SilbinaryWolf/Components/ComponentTemplateParser.peg > ./src/SilbinaryWolf/Components/ComponentTemplateParser.php"
+        "phpcs": "phpcs src/Symbiote/Components/ tests/",
+        "phpcbf": "phpcbf --ignore=Symbiote/Components/ComponentTemplateParser.php src/Symbiote/Components/ tests/",
+        "php-peg": "php ../../silverstripe/framework/thirdparty/php-peg/cli.php ./src/Symbiote/Components/ComponentTemplateParser.peg > ./src/Symbiote/Components/ComponentTemplateParser.php"
     },
     "autoload": {
         "psr-4": {
-            "SilbinaryWolf\\Components\\": "src/"
+            "Symbiote\\Components\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "SilbinaryWolf\\Components\\Tests\\": "tests/"
+            "Symbiote\\Components\\Tests\\": "tests/"
         }
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "2.2.x-dev"
+            "dev-master": "3.0.x-dev"
         }
     },
+	"replace": {
+		"silbinarywolf/silverstripe-components": "self.version"
+	},
     "prefer-stable": true,
     "minimum-stability": "dev"
 }

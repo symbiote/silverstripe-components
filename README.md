@@ -1,10 +1,10 @@
 # Components
 
-[![Build Status](https://travis-ci.org/silbinarywolf/silverstripe-components.svg?branch=master)](https://travis-ci.org/silbinarywolf/silverstripe-components)
-[![Latest Stable Version](https://poser.pugx.org/silbinarywolf/silverstripe-components/version.svg)](https://github.com/silbinarywolf/silverstripe-components/releases)
-[![Latest Unstable Version](https://poser.pugx.org/silbinarywolf/silverstripe-components/v/unstable.svg)](https://packagist.org/packages/silbinarywolf/silverstripe-components)
-[![Total Downloads](https://poser.pugx.org/silbinarywolf/silverstripe-components/downloads.svg)](https://packagist.org/packages/silbinarywolf/silverstripe-components)
-[![License](https://poser.pugx.org/silbinarywolf/silverstripe-components/license.svg)](https://github.com/silbinarywolf/silverstripe-components/blob/master/LICENSE.md)
+[![Build Status](https://travis-ci.org/symbiote/silverstripe-components.svg?branch=master)](https://travis-ci.org/symbiote/silverstripe-components)
+[![Latest Stable Version](https://poser.pugx.org/symbiote/silverstripe-components/version.svg)](https://github.com/symbiote/silverstripe-components/releases)
+[![Latest Unstable Version](https://poser.pugx.org/symbiote/silverstripe-components/v/unstable.svg)](https://packagist.org/packages/symbiote/silverstripe-components)
+[![Total Downloads](https://poser.pugx.org/symbiote/silverstripe-components/downloads.svg)](https://packagist.org/packages/symbiote/silverstripe-components)
+[![License](https://poser.pugx.org/symbiote/silverstripe-components/license.svg)](https://github.com/symbiote/silverstripe-components/blob/master/LICENSE.md)
 
 This module allows you to use special <:TemplateName> syntax to include templates. This allows you to pass inner HTML into a template, much like you can do in React with the children properties. Using the <:TemplateName> syntax will not automatically pass variables in the current scope like <% include %>.
 
@@ -25,14 +25,14 @@ This module allows you to use special <:TemplateName> syntax to include template
 
 ## Composer Install
 
-**[SilverStripe 3.X](https://github.com/silbinarywolf/silverstripe-components/tree/1)**
+**[SilverStripe 3.X](https://github.com/symbiote/silverstripe-components/tree/1)**
 ```
-composer require silbinarywolf/silverstripe-components:~1.0
+composer require symbiote/silverstripe-components:~1.0
 ```
 
-**[SilverStripe 4.X](https://github.com/silbinarywolf/silverstripe-components/tree/master)**
+**[SilverStripe 4.X](https://github.com/symbiote/silverstripe-components/tree/master)**
 ```
-composer require silbinarywolf/silverstripe-components:~2.0
+composer require symbiote/silverstripe-components:~2.0
 ```
 
 ## Requirements

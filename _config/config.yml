@@ -3,4 +3,4 @@ Name: components
 ---
 SilverStripe\Core\Injector\Injector:
   SilverStripe\View\SSTemplateParser:
-    class: SilbinaryWolf\Components\ComponentTemplateParser
+    class: Symbiote\Components\ComponentTemplateParser
