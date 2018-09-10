@@ -32,7 +32,7 @@ composer require symbiote/silverstripe-components:~1.0
 
 **[SilverStripe 4.X](https://github.com/symbiote/silverstripe-components/tree/master)**
 ```
-composer require symbiote/silverstripe-components:~2.0
+composer require symbiote/silverstripe-components:~3.0
 ```
 
 ## Requirements
