@@ -90,7 +90,8 @@ class ComponentService
                         }
                         foreach ($jsonData as $propertyName => $value) {
                             if (is_array($value)) {
-                                $value = 'new '.'ArrayList'.'('.var_export($value, true).')';
+                                // export valid template logic for nested data
+                                $value = self::exportNestedDataForTemplates($value);
                             }
                             $phpCodeValueParts[] = "\$_props['".$propertyName."'][] = ".$value.";";
                         }
@@ -186,6 +187,33 @@ PHP;
     }
 
     /**
+     * Recursively replace nonassociative arrays with ArrayListExportable and
+     * output with 'var_export' to produce template logic for the nested data.
+     *
+     * @param array     $array      The nested data to export
+     * @param bool      $root       Ignore this
+     * @return string               Executable template logic
+     */
+    private static function exportNestedDataForTemplates(array $array, $root = true)
+    {
+        // depth first
+        foreach ($array as $prop => &$value) {
+            if (is_array($value)) {
+                $value = self::exportNestedDataForTemplates($value, false);
+            }
+        }
+        unset($value);
+
+        // json data expected to be keyed with ints, over the usual strings
+        if (isset($array[0])) {
+            // replace array with exportable array list
+            $array = new ArrayListExportable($array);
+        }
+
+        return $root ? var_export($array, true) : $array;
+    }
+
+    /**
      * @return DBComponentField|SS_List|DataObject|ArrayData
      */
     public function createProperty($name, array $parts)
@@ -231,5 +259,34 @@ PHP;
         // $this->extend('updateRenderComponent', $result, $name, $props, $scope);
         //
         return $result;
+    }
+}
+
+/**
+ * Used in place of ArrayList when preparing nested arrays for export for SS templates.
+ *
+ * var_export calls '__set_state' on classes, so it produces code like:
+ *
+ *      ArrayList::__set_state(array('items' => [...]))
+ *
+ * And because ArrayList doens't implement '__set_state', executing the code throws errors.
+ * So we work around this by using an ArrayListExportable to produce:
+ *
+ *      ArrayListExportable::__set_state(array('items' => [...]))
+ *
+ * And implement '__set_state' to return a constructed ArrayList.
+ */
+class ArrayListExportable
+{
+    public function __construct($array = array())
+    {
+        // need to store items for var_export to recurse
+        $this->items = $array;
+    }
+
+    public static function __set_state ($array)
+    {
+        // when executed, we naruto-style body-replace with in an ArrayList
+        return new ArrayList($array['items']);
     }
 }
