@@ -1,4 +1,6 @@
 <?php
+namespace Symbiote;
+
 /**
  * Used in place of ArrayList when preparing nested arrays for export for SS templates.
  *

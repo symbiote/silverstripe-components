@@ -15,6 +15,7 @@ use SilverStripe\ORM\ArrayList;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\FieldType\DBString;
 use SilverStripe\Core\Config\Config;
+use Symbiote\ArrayListExportable;
 
 class ComponentService
 {
