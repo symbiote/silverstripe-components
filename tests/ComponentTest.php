@@ -529,6 +529,113 @@ SSTemplate;
     }
 
     /**
+     * Test iterating nested arrays in templates
+     */
+    public function testJSONDeeplyNested()
+    {
+        $template = <<<SSTemplate
+<:JSONNestedTest
+    _json='{
+        "NestedData": [
+            {
+                "Title": "Item 1.1",
+                "Children": [
+                    {
+                        "Title": "Item 2.1"
+                    },
+                    {
+                        "Title": "Item 2.2"
+                    },
+                    {
+                        "Title": "item 2.3",
+                        "Children": [
+                            {
+                                "Title": "Item 3.1"
+                            },
+                            {
+                                "Title": "Item 3.2"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Title": "Item 1.2"
+            },
+            {
+                "Title": "Item 1.3",
+                "Children": [
+                    {
+                        "Title": "Item 2.4",
+                        "Children": [
+                            {
+                                "Title": "Item 3.3"
+                            },
+                            {
+                                "Title": "Item 3.4"
+                            }
+                        ]
+                    },
+                    {
+                        "Title": "Item 2.5"
+                    },
+                    {
+                        "Title": "item 2.6"
+                    }
+                ]
+            }
+        ]
+    }'
+/>
+SSTemplate;
+        $expectedHTML = <<<HTML
+    <h2>Item 1.1</h2>
+    <ul>
+    <li>
+        <h3>Item 2.1</h3>
+    </li>
+    <li>
+        <h3>Item 2.2</h3>
+    </li>
+    <li>
+        <h3>item 2.3</h3>
+        <ul>
+            <li>
+            <h4>Item 3.1</h4>
+            </li>
+            <li>
+            <h4>Item 3.2</h4>
+            </li>
+        </ul>
+    </li>
+    </ul>
+    <h2>Item 1.2</h2>
+    <h2>Item 1.3</h2>
+    <ul>
+    <li>
+        <h3>Item 2.4</h3>
+        <ul>
+            <li>
+            <h4>Item 3.3</h4>
+            </li>
+            <li>
+            <h4>Item 3.4</h4>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <h3>Item 2.5</h3>
+    </li>
+    <li>
+        <h3>item 2.6</h3>
+    </li>
+    </ul>
+HTML;
+        $resultHTML = SSViewer::fromString($template)->process(null);
+        $this->assertEqualIgnoringWhitespace($expectedHTML, $resultHTML, 'Unexpected output');
+    }
+
+    /**
      * Taken from "framework\tests\view\SSViewerTest.php"
      */
     protected function assertEqualIgnoringWhitespace($a, $b, $message = '')
