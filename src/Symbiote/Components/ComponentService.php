@@ -95,7 +95,8 @@ class ComponentService
                         }
                         foreach ($jsonData as $propertyName => $value) {
                             if (is_array($value)) {
-                                $value = 'new '.ArrayList::class.'('.var_export($value, true).')';
+                                // export valid template logic for nested data
+                                $value = self::exportNestedDataForTemplates($value);
                             }
                             $phpCodeValueParts[] = "\$_props['".$propertyName."'][] = ".$value.";";
                         }
@@ -188,6 +189,31 @@ PHP;
             throw new Exception('Debug stop.');
         }
         return $result;
+    }
+
+    /**
+     * Recursively replace nonassociative arrays with ArrayListExportable and
+     * output with 'var_export' to produce template logic for the nested data.
+     *
+     * @param array     $array      The nested data to export
+     * @param bool      $root       Ignore this
+     * @return string               Executable template logic
+     */
+    private static function exportNestedDataForTemplates(array $array, $root = true)
+    {
+        // depth first
+        foreach ($array as $prop => &$value) {
+            if (is_array($value)) {
+                $value = self::exportNestedDataForTemplates($value, false);
+            }
+        }
+        unset($value);
+         // json data expected to be keyed with ints, over the usual strings
+        if (isset($array[0])) {
+            // replace array with exportable array list
+            $array = new ArrayListExportable($array);
+        }
+        return $root ? var_export($array, true) : $array;
     }
 
     /**
