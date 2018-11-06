@@ -16,6 +16,7 @@ use Debug;
 use SS_List;
 use DataObject;
 use StringField;
+use ArrayListExportable;
 
 class ComponentService
 {
