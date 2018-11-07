@@ -44,7 +44,7 @@ class ComponentService
             // template errors
             if (strpos($propValue, '<% if') !== false) {
                 throw new SSTemplateParseException(
-                    'Missing < % end_if % > inside property "' . $propName . '" on component "' . $componentName . '"', 
+                    'Missing < % end_if % > inside property "' . $propName . '" on component "' . $componentName . '"',
                     $parser
                 );
             } else if (strpos($propValue, '<% loop') !== false) {
@@ -56,40 +56,40 @@ class ComponentService
 
             // process property
             switch ($propName) {
-                case '_json': {
-                    $php .= $this->handlePropertyJSON($propValue, $parser);
-                    break;
-                }
-                default: {
-                    // restricted name error
-                    if($propName[0] === '_') {
-                        throw new SSTemplateParseException('Invalid special property type: "' . $propName . '", properties that start with a _ are reserved for special functionality. Available special property types are: "_json".', $parser);
+                case '_json':
+                    {
+                        $php .= $this->handlePropertyJSON($propValue, $parser);
                         break;
                     }
-                    $php .= $this->handleProperyNormal($propValue, $propName);
-                    break;
-                }
+                default:
+                    {
+                    // restricted name error
+                        if ($propName[0] === '_') {
+                            throw new SSTemplateParseException('Invalid special property type: "' . $propName . '", properties that start with a _ are reserved for special functionality. Available special property types are: "_json".', $parser);
+                            break;
+                        }
+                        $php .= $this->handleProperyNormal($propValue, $propName);
+                        break;
+                    }
             }
         }
         
         // final render call for output php
         $php .= "\$val .= Injector::inst()->get('SilbinaryWolf\\Components\\ComponentService')->renderComponent('$componentName', \$_props, \$scope);\nunset(\$_props);\n";
-        echo ('<pre>' . $componentName . '<br>' . print_r($php, true) . '</pre><br>'); // TEMP
 
         return $php;
     }
 
     private static function handleProperyNormal($propValue, $propName)
     {
-        $buffer = '';
+        // buffer vals for conversion to php
         $propValues = [];
-        // Modify provided PHP code
-        $ifValueParts = explode('[_CPB]', $propValue);
-        foreach ($ifValueParts as $valueString) {
-            // buffer vals for conversion to php
 
-            $valueString = trim($valueString);
-            $values = explode('[_CFP]', $valueString);
+        // Modify provided PHP code
+        $valueParts = explode('[_CPB]', $propValue);
+        foreach ($valueParts as $valuePart) {
+            $valuePart = trim($valuePart);
+            $values = explode('[_CFP]', $valuePart);
             foreach ($values as $value) {
                 if ($value === "''") {
                     // NOTE(Jake): 2018-04-29
@@ -103,26 +103,11 @@ class ComponentService
                     continue;
                 }
                 $value = trim($value);
-                // NOTE(Jake): 2018-04-29, This hack is for inside an <% if %>
-                if (strpos($value, '$val .=') !== false) {
-                    if (strpos($value, 'XML_val(') !== false) {
-                        $value = str_replace(array('XML_val(', ';'), array('obj(', '->self();'), $value);
-                    }
-                    echo "0 => " . $value . '<br>';
-                    $value = str_replace('$val .=', '$_props[\'' . $propName . '\'][] =', $value);
-                    $value = str_replace("\n", '', $value);
-                    echo "1 => " . $value . '<br>';
-                    $propValues[] = $value;
-                    echo "2 => " . print_r($propValues, true) . '<br>';
-                    continue;
-                }
                 $propValues[] = $value;
             }
-
         }
-        $buffer .= self::Prop2PHP($propName, $propValues);
 
-        return $buffer;
+        return self::Prop2PHP($propName, $propValues);
     }
 
     private static function handlePropertyJSON($propValue, $parser)
@@ -138,10 +123,11 @@ class ComponentService
         // handle json error
         if (json_last_error() !== JSON_ERROR_NONE) {
             switch (json_last_error()) {
-                case JSON_ERROR_SYNTAX: {
-                    throw new SSTemplateParseException('JSON Syntax error, did you quote all the property names and remove trailing commas? I suggest running the following through a JSON validator online.' . "\n" . $jsonString, $parser);
-                    break;
-                }
+                case JSON_ERROR_SYNTAX:
+                    {
+                        throw new SSTemplateParseException('JSON Syntax error, did you quote all the property names and remove trailing commas? I suggest running the following through a JSON validator online.' . "\n" . $jsonString, $parser);
+                        break;
+                    }
             }
             throw new SSTemplateParseException('JSON ' . json_last_error_msg() . "\n" . $jsonString, $parser);
         }
@@ -161,16 +147,29 @@ class ComponentService
 
     private static function Prop2PHP($name, $value)
     {
+        // turns a value into php code
+        $val2PHP = function($value) use($name) {
+            if (strpos($value, '$val .=') !== false) {
+                if (strpos($value, 'XML_val(') !== false) {
+                    $value = str_replace(array('XML_val(', ';'), array('obj(', '->self();'), $value);
+                }
+                $value = str_replace('$val .=', '$_props[\'' . $name . '\'][] =', $value);
+                return $value . "\n";
+            } else {
+                return "\$_props['" . $name . "'][] = " . $value . ";\n";
+            }
+        };
+
         // instantiate prop
         $buffer = "\$_props['" . $name . "'] = array();\n";
-        
+
         // add prop value(s)
-        if(is_array($value)) {
-            foreach($value as $val) {
-                $buffer .= "\$_props['" . $name . "'][] = " . $val . ";\n";
+        if (is_array($value)) {
+            foreach ($value as $val) {
+                $buffer .= $val2PHP($val);
             }
         } else {
-            $buffer .= "\$_props['" . $name . "'][] = " . $value . ";\n";
+            $buffer .= $val2PHP($value);
         }
 
         // add render call
