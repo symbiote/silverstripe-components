@@ -21,94 +21,77 @@ use ArrayListExportable;
 class ComponentService
 {
     /**
-     * @param array            $res
+     * @param array            $data
      * @param SSTemplateParser $parser
      * @return string The PHP code to insert into the cached SS template file
      */
-    public function generateTemplateCode(array $res, $parser)
+    public function generateTemplateCode(array $data, $parser)
     {
-        $componentName = $res['ComponentName']['text'];
-        $resArguments = isset($res['arguments']) ? $res['arguments'] : array();
-        $phpCode = "\$_props = array();\n";
-        foreach ($resArguments as $i => $v) {
+        // output data
+        $php = "\$_props = array();\n";
+
+        // iterate properties
+        $componentName = $data['ComponentName']['text'];
+        $properties = isset($data['arguments']) ? $data['arguments'] : array();
+        foreach ($properties as $i => $prop) {
             // Extract property / values from parser information
-            $propertyAndValue = explode('=>', $v);
-            $propertyName = trim($propertyAndValue[0]);
-            $valueParts = $propertyAndValue[1];
-
-            $propertyName = trim($propertyName, '\'');
-            $propertyName = trim($propertyName, '"');
-
-            if (strpos($valueParts, '<% if') !== false) {
-                // NOTE(Jake): 2018-03-31
-                //
-                // This could be improved to figure out the exact line number of
-                // this error. However I think the below message is reasonable
-                // enough to debug.
-                //
-                throw new SSTemplateParseException('Missing < % end_if % > inside property "' . $propertyName . '" on component "' . $componentName . '"', $parser);
-            }
-            if (strpos($valueParts, '<% loop') !== false) {
-                throw new SSTemplateParseException('Cannot use < % loop % > inside property "' . $propertyName . '" on component "' . $componentName . '"', $parser);
-            }
+            $propAndValue = explode('=>', $prop);
+            $propName = trim($propAndValue[0]);
+            $propName = trim($propName, '\'');
+            $propName = trim($propName, '"');
+            $propValue = $propAndValue[1];
             
-            // Handle special variable (ie. prefixed with _)
-            $phpCodeValueParts = array();
-            if ($propertyName && $propertyName[0] === '_') {
-                // strip '_'
-                $propertyNameWithPrefix = $propertyName;
-                $propertyName = substr($propertyNameWithPrefix, 1);
+            // template errors
+            if (strpos($propValue, '<% if') !== false) {
+                throw new SSTemplateParseException(
+                    'Missing < % end_if % > inside property "' . $propName . '" on component "' . $componentName . '"', 
+                    $parser
+                );
+            } else if (strpos($propValue, '<% loop') !== false) {
+                throw new SSTemplateParseException(
+                    'Cannot use < % loop % > inside property "' . $propName . '" on component "' . $componentName . '"',
+                    $parser
+                );
+            }
 
-                switch ($propertyName) {
-                    case 'json':
-                        $jsonString = $valueParts;
-                        $jsonString = trim($jsonString);
-                        $jsonString = trim($jsonString, '\'');
-                        $jsonString = trim($jsonString, '"');
-                        // NOTE(Jake): 2018-08-03
-                        //
-                        // - Allow use of ' characters.
-                        // - Allow use of " characters.
-                        //
-                        // See ComponentTest::testJSONEscapedCharacters() for examples.
-                        //
-                        $jsonString = str_replace(array("\\\\\\'", '\\\\"'), array("'", '\\"'), $jsonString);
-                        $jsonData = @json_decode($jsonString, true);
-                        if (json_last_error() !== JSON_ERROR_NONE) {
-                            // todo(Jake): 2018-08-03
-                            //
-                            // See if we can use an alterate parser that can give better error messages.
-                            //
-                            switch (json_last_error()) {
-                                case JSON_ERROR_SYNTAX:
-                                    throw new SSTemplateParseException('JSON Syntax error, did you quote all the property names and remove trailing commas? I suggest running the following through a JSON validator online.' . "\n" . $jsonString, $parser);
-                                    break;
-                            }
-                            throw new SSTemplateParseException('JSON ' . json_last_error_msg() . "\n" . $jsonString, $parser);
-                        }
-                        foreach ($jsonData as $propName => $value) {
-                            if (is_array($value)) {
-                                // export valid template logic for nested data
-                                $value = self::exportNestedDataForTemplates($value);
-                                // echo ('<pre>' . $componentName . '<br>' . print_r($jsonData, true) . '</pre><br>'); // TEMP
-                            }
-                            $phpCode .= "\$_props['" . $propName . "'] = array();\n";
-                            $phpCode .= "\$_props['" . $propName . "'][] = " . $value . ";\n";
-                            $phpCode .= "\$_props['" . $propName . "'] = Injector::inst()->get('SilbinaryWolf\\Components\\ComponentService')->createProperty('" . $propName . "', \$_props['" . $propName . "']);\n";
-                        }
+            // process property
+            switch ($propName) {
+                case '_json': {
+                    $php .= $this->handlePropertyJSON($propValue, $parser);
+                    break;
+                }
+                default: {
+                    // restricted name error
+                    if($propName[0] === '_') {
+                        throw new SSTemplateParseException('Invalid special property type: "' . $propName . '", properties that start with a _ are reserved for special functionality. Available special property types are: "_json".', $parser);
                         break;
-
-                    default:
-                        throw new SSTemplateParseException('Invalid special property type: "' . $propertyNameWithPrefix . '", properties that start with a _ are reserved for special functionality. Available special property types are: "_json".', $parser);
-                        break;
+                    }
+                    $php .= $this->handleProperyNormal($propValue, $propName);
+                    break;
                 }
             }
-            // Handle normal varaiable
-            else {
-                // Modify provided PHP code
-                $ifValueParts = explode('[_CPB]', $valueParts);
-                foreach ($ifValueParts as $value) {
-                    $value = trim($value);
+        }
+        
+        // final render call for output php
+        $php .= "\$val .= Injector::inst()->get('SilbinaryWolf\\Components\\ComponentService')->renderComponent('$componentName', \$_props, \$scope);\nunset(\$_props);\n";
+        echo ('<pre>' . $componentName . '<br>' . print_r($php, true) . '</pre><br>'); // TEMP
+
+        return $php;
+    }
+
+    private static function handleProperyNormal($propValue, $propName)
+    {
+        $buffer = '';
+        $propValues = [];
+        // Modify provided PHP code
+        $ifValueParts = explode('[_CPB]', $propValue);
+        foreach ($ifValueParts as $valueString) {
+            // buffer vals for conversion to php
+
+            $valueString = trim($valueString);
+            $values = explode('[_CFP]', $valueString);
+            foreach ($values as $value) {
+                if ($value === "''") {
                     // NOTE(Jake): 2018-04-29
                     //
                     // Remove blank string concats from template. This is to avoid an object from
@@ -117,39 +100,83 @@ class ComponentService
                     // We want to avoid this so that in SS4, there attributes aren't double quoted as
                     // HTML is escaped by default.
                     //
-                    $valueParts = explode('[_CFP]', $value);
-                    foreach ($valueParts as $valuePart) {
-                        if ($valuePart === "''") {
-                            // Skip empty string parts
-                            continue;
-                        }
-                        $valuePart = trim($valuePart);
-                        if (strpos($valuePart, '$val .=') !== false) {
-                            if (strpos($valuePart, 'XML_val(') !== false) {
-                                // NOTE(Jake): 2018-04-29, This hack is for inside an <% if %>
-                                $valuePart = str_replace(array('XML_val(', ';'), array('obj(', '->self();'), $valuePart);
-                            }
-                            $valuePart = str_replace('$val .=', '$_props[\'' . $propertyName . '\'][] =', $valuePart);
-                            $phpCodeValueParts[] = $valuePart;
-                            continue;
-                        }
-                        $valuePart = "\$_props['" . $propertyName . "'][] = " . $valuePart . ";";
-                        $phpCodeValueParts[] = $valuePart;
+                    continue;
+                }
+                $value = trim($value);
+                // NOTE(Jake): 2018-04-29, This hack is for inside an <% if %>
+                if (strpos($value, '$val .=') !== false) {
+                    if (strpos($value, 'XML_val(') !== false) {
+                        $value = str_replace(array('XML_val(', ';'), array('obj(', '->self();'), $value);
                     }
+                    echo "0 => " . $value . '<br>';
+                    $value = str_replace('$val .=', '$_props[\'' . $propName . '\'][] =', $value);
+                    $value = str_replace("\n", '', $value);
+                    echo "1 => " . $value . '<br>';
+                    $propValues[] = $value;
+                    echo "2 => " . print_r($propValues, true) . '<br>';
+                    continue;
+                }
+                $propValues[] = $value;
+            }
 
-                    $phpCode .= "\$_props['" . $propertyName . "'] = array();\n";
-                    foreach ($phpCodeValueParts as $phpCodeValuePart) {
-                        $phpCode .= $phpCodeValuePart . "\n";
-                    }
-                    $phpCode .= "\$_props['" . $propertyName . "'] = Injector::inst()->get('SilbinaryWolf\\Components\\ComponentService')->createProperty('" . $propertyName . "', \$_props['" . $propertyName . "']);\n";
+        }
+        $buffer .= self::Prop2PHP($propName, $propValues);
+
+        return $buffer;
+    }
+
+    private static function handlePropertyJSON($propValue, $parser)
+    {
+        // get json data
+        $jsonString = $propValue;
+        $jsonString = trim($jsonString);
+        $jsonString = trim($jsonString, '\'');
+        $jsonString = trim($jsonString, '"');
+        $jsonString = str_replace(array("\\\\\\'", '\\\\"'), array("'", '\\"'), $jsonString);
+        $jsonData = @json_decode($jsonString, true);
+
+        // handle json error
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            switch (json_last_error()) {
+                case JSON_ERROR_SYNTAX: {
+                    throw new SSTemplateParseException('JSON Syntax error, did you quote all the property names and remove trailing commas? I suggest running the following through a JSON validator online.' . "\n" . $jsonString, $parser);
+                    break;
                 }
             }
+            throw new SSTemplateParseException('JSON ' . json_last_error_msg() . "\n" . $jsonString, $parser);
         }
+
+        // process data into buffer
+        $buffer = '';
+        foreach ($jsonData as $name => $value) {
+            // handle nested data
+            if (is_array($value)) {
+                $value = self::exportNestedDataForTemplates($value);
+            }
+            $buffer .= self::Prop2PHP($name, $value);
+        }
+
+        return $buffer;
+    }
+
+    private static function Prop2PHP($name, $value)
+    {
+        // instantiate prop
+        $buffer = "\$_props['" . $name . "'] = array();\n";
         
-        // Output PHP code for setting properties
-        $phpCode .= "\$val .= Injector::inst()->get('SilbinaryWolf\\Components\\ComponentService')->renderComponent('$componentName', \$_props, \$scope);\nunset(\$_props);\n";
-        echo ('<pre>' . $componentName . '<br>' . print_r($phpCode, true) . '</pre><br>'); // TEMP
-        return $phpCode;
+        // add prop value(s)
+        if(is_array($value)) {
+            foreach($value as $val) {
+                $buffer .= "\$_props['" . $name . "'][] = " . $val . ";\n";
+            }
+        } else {
+            $buffer .= "\$_props['" . $name . "'][] = " . $value . ";\n";
+        }
+
+        // add render call
+        $buffer .= "\$_props['" . $name . "'] = Injector::inst()->get('SilbinaryWolf\\Components\\ComponentService')->createProperty('" . $name . "', \$_props['" . $name . "']);\n";
+
+        return $buffer;
     }
 
     /**
