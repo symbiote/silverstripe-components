@@ -20,7 +20,6 @@ use ArrayListExportable;
 
 class ComponentService
 {
-    const DEBUG_JSON_CODE_OUTPUT = false;
     /**
      * @param array            $res
      * @param SSTemplateParser $parser
@@ -28,14 +27,12 @@ class ComponentService
      */
     public function generateTemplateCode(array $res, $parser)
     {
-        $debugHasUsedJSON = false;
-
         $componentName = $res['ComponentName']['text'];
-        $arguments = array();
         $resArguments = isset($res['arguments']) ? $res['arguments'] : array();
-        foreach ($resArguments as $i => $phpOutput) {
+        $phpCode = "\$_props = array();\n";
+        foreach ($resArguments as $i => $v) {
             // Extract property / values from parser information
-            $propertyAndValue = explode('=>', $phpOutput);
+            $propertyAndValue = explode('=>', $v);
             $propertyName = trim($propertyAndValue[0]);
             $valueParts = $propertyAndValue[1];
 
@@ -49,19 +46,19 @@ class ComponentService
                 // this error. However I think the below message is reasonable
                 // enough to debug.
                 //
-                throw new SSTemplateParseException('Missing < % end_if % > inside property "'.$propertyName.'" on component "'.$componentName.'"', $parser);
+                throw new SSTemplateParseException('Missing < % end_if % > inside property "' . $propertyName . '" on component "' . $componentName . '"', $parser);
             }
             if (strpos($valueParts, '<% loop') !== false) {
-                throw new SSTemplateParseException('Cannot use < % loop % > inside property "'.$propertyName.'" on component "'.$componentName.'"', $parser);
+                throw new SSTemplateParseException('Cannot use < % loop % > inside property "' . $propertyName . '" on component "' . $componentName . '"', $parser);
             }
-
-            //
+            
+            // Handle special variable (ie. prefixed with _)
             $phpCodeValueParts = array();
-            if ($propertyName &&
-                $propertyName[0] === '_') {
-                // Handle special variable (ie. prefixed with _)
+            if ($propertyName && $propertyName[0] === '_') {
+                // strip '_'
                 $propertyNameWithPrefix = $propertyName;
                 $propertyName = substr($propertyNameWithPrefix, 1);
+
                 switch ($propertyName) {
                     case 'json':
                         $jsonString = $valueParts;
@@ -84,26 +81,30 @@ class ComponentService
                             //
                             switch (json_last_error()) {
                                 case JSON_ERROR_SYNTAX:
-                                    throw new SSTemplateParseException('JSON Syntax error, did you quote all the property names and remove trailing commas? I suggest running the following through a JSON validator online.'."\n".$jsonString, $parser);
+                                    throw new SSTemplateParseException('JSON Syntax error, did you quote all the property names and remove trailing commas? I suggest running the following through a JSON validator online.' . "\n" . $jsonString, $parser);
                                     break;
                             }
-                            throw new SSTemplateParseException('JSON '.json_last_error_msg()."\n".$jsonString, $parser);
+                            throw new SSTemplateParseException('JSON ' . json_last_error_msg() . "\n" . $jsonString, $parser);
                         }
-                        foreach ($jsonData as $propertyName => $value) {
+                        foreach ($jsonData as $propName => $value) {
                             if (is_array($value)) {
                                 // export valid template logic for nested data
                                 $value = self::exportNestedDataForTemplates($value);
+                                // echo ('<pre>' . $componentName . '<br>' . print_r($jsonData, true) . '</pre><br>'); // TEMP
                             }
-                            $phpCodeValueParts[] = "\$_props['".$propertyName."'][] = ".$value.";";
+                            $phpCode .= "\$_props['" . $propName . "'] = array();\n";
+                            $phpCode .= "\$_props['" . $propName . "'][] = " . $value . ";\n";
+                            $phpCode .= "\$_props['" . $propName . "'] = Injector::inst()->get('SilbinaryWolf\\Components\\ComponentService')->createProperty('" . $propName . "', \$_props['" . $propName . "']);\n";
                         }
-                        $debugHasUsedJSON = true;
                         break;
 
                     default:
-                        throw new SSTemplateParseException('Invalid special property type: "'.$propertyNameWithPrefix.'", properties that start with a _ are reserved for special functionality. Available special property types are: "_json".', $parser);
+                        throw new SSTemplateParseException('Invalid special property type: "' . $propertyNameWithPrefix . '", properties that start with a _ are reserved for special functionality. Available special property types are: "_json".', $parser);
                         break;
                 }
-            } else {
+            }
+            // Handle normal varaiable
+            else {
                 // Modify provided PHP code
                 $ifValueParts = explode('[_CPB]', $valueParts);
                 foreach ($ifValueParts as $value) {
@@ -128,63 +129,27 @@ class ComponentService
                                 // NOTE(Jake): 2018-04-29, This hack is for inside an <% if %>
                                 $valuePart = str_replace(array('XML_val(', ';'), array('obj(', '->self();'), $valuePart);
                             }
-                            $valuePart = str_replace('$val .=', '$_props[\''.$propertyName.'\'][] =', $valuePart);
+                            $valuePart = str_replace('$val .=', '$_props[\'' . $propertyName . '\'][] =', $valuePart);
                             $phpCodeValueParts[] = $valuePart;
-                            //$phpCode .= $valuePart."\n";
                             continue;
                         }
-                        $valuePart = "\$_props['".$propertyName."'][] = ".$valuePart.";";
+                        $valuePart = "\$_props['" . $propertyName . "'][] = " . $valuePart . ";";
                         $phpCodeValueParts[] = $valuePart;
-                        //$phpCode .= $valuePart."\n";
                     }
+
+                    $phpCode .= "\$_props['" . $propertyName . "'] = array();\n";
+                    foreach ($phpCodeValueParts as $phpCodeValuePart) {
+                        $phpCode .= $phpCodeValuePart . "\n";
+                    }
+                    $phpCode .= "\$_props['" . $propertyName . "'] = Injector::inst()->get('SilbinaryWolf\\Components\\ComponentService')->createProperty('" . $propertyName . "', \$_props['" . $propertyName . "']);\n";
                 }
             }
-
-            //
-            $phpCode = "";
-            if (count($phpCodeValueParts) === 1) {
-                //$phpCode .= "\$_props['".$propertyName."'] = \$_props['".$propertyName."'][0];\n";
-                $phpCode = "\$_props['".$propertyName."'] = array();\n";
-                $phpCode .= $phpCodeValueParts[0]."\n";
-                //$phpCode .= "\$_props['".$propertyName."'] = \$_props['".$propertyName."'][0];\n";
-            } else {
-                $phpCode = "\$_props['".$propertyName."'] = array();\n";
-                foreach ($phpCodeValueParts as $phpCodeValuePart) {
-                    $phpCode .= $phpCodeValuePart."\n";
-                }
-                //$phpCode .= "\$_props['".$propertyName."'] = Injector::inst()->createWithArgs('SilbinaryWolf\\Components\\DBComponentField', array('".$propertyName."', \$_props['".$propertyName."']));\n";
-            }
-            $phpCode .= "\$_props['".$propertyName."'] = Injector::inst()->get('SilbinaryWolf\\Components\\ComponentService')->createProperty('".$propertyName."', \$_props['".$propertyName."']);\n";
-            $arguments[$propertyName] = $phpCode;
         }
-
-        // Output "children" php code
-        $value = isset($res['Children']['php']) ? $res['Children']['php'] : '';
-        if ($value) {
-            if (isset($arguments['children'])) {
-                throw new SSTemplateParseException('Cannot use "children" as a property name and have inner HTML.', $parser);
-            }
-            $value = "\$_props['children'] = '';\n".$value;
-            $value = str_replace("\$val .=", "\$_props['children'] .=", $value);
-            $value .= "\$_props['children'] = DBField::create_field('HTMLText', \$_props['children']);\n";
-            $arguments['children'] = $value;
-        }
-
+        
         // Output PHP code for setting properties
-        $result = "\$_props = array();\n";
-        foreach ($arguments as $propertyName => $phpCode) {
-            $result .= $phpCode;
-        }
-        $result .= <<<PHP
-\$val .= Injector::inst()->get('SilbinaryWolf\\Components\\ComponentService')->renderComponent('$componentName', \$_props, \$scope);
-unset(\$_props);
-PHP;
-        if (self::DEBUG_JSON_CODE_OUTPUT &&
-            $debugHasUsedJSON) {
-            var_dump($result);
-            throw new Exception('Debug stop.');
-        }
-        return $result;
+        $phpCode .= "\$val .= Injector::inst()->get('SilbinaryWolf\\Components\\ComponentService')->renderComponent('$componentName', \$_props, \$scope);\nunset(\$_props);\n";
+        echo ('<pre>' . $componentName . '<br>' . print_r($phpCode, true) . '</pre><br>'); // TEMP
+        return $phpCode;
     }
 
     /**
