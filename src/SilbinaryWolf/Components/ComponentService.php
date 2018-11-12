@@ -145,7 +145,6 @@ class ComponentService
             // handle strings
             else if (is_string($value)) {
                 $value = '"' . $value . '"';
-                var_dump($value);
             }
             $buffer .= self::Prop2PHP($name, $value);
         }
