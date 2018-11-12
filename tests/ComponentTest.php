@@ -528,14 +528,6 @@ SSTemplate;
     }
 
     /**
-     * Taken from "framework\tests\view\SSViewerTest.php"
-     */
-    protected function assertEqualIgnoringWhitespace($a, $b, $message = '')
-    {
-        $this->assertEquals(preg_replace('/\s+/', '', $a), preg_replace('/\s+/', '', $b), $message);
-    }
-
-    /**
      * Test iterating nested arrays in templates
      */
     public function testJSONDeeplyNested()
@@ -640,5 +632,48 @@ SSTemplate;
 HTML;
         $resultHTML = SSViewer::fromString($template)->process(null);
         $this->assertEqualIgnoringWhitespace($expectedHTML, $resultHTML, 'Unexpected output');
+    }
+
+    /**
+     * Test iterating multiple root level properties in templates
+     */
+    public function testJSONMultiRoot()
+    {
+        $template = <<<SSTemplate
+<:JSONRootTest
+    _json='{
+        "Title": "Root Test",
+        "Root1": [
+            {"Title": "one"},
+            {"Title": "two"}
+        ],
+        "Root2": [
+            {"Title": "three"},
+            {"Title": "four"}
+        ]
+    }'
+/>
+SSTemplate;
+        $expectedHTML = <<<HTML
+    <h1>Root Test</h1>
+    <div>
+        <h2>one</h2>        
+        <h2>two</h2>
+    </div>
+    <div>
+        <h2>three</h2>
+        <h2>four</h2>        
+    </div>
+HTML;
+        $resultHTML = SSViewer::fromString($template)->process(null);
+        $this->assertEqualIgnoringWhitespace($expectedHTML, $resultHTML, 'Unexpected output');
+    }
+
+    /**
+     * Taken from "framework\tests\view\SSViewerTest.php"
+     */
+    protected function assertEqualIgnoringWhitespace($a, $b, $message = '')
+    {
+        $this->assertEquals(preg_replace('/\s+/', '', $a), preg_replace('/\s+/', '', $b), $message);
     }
 }
