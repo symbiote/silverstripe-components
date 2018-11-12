@@ -169,6 +169,7 @@ class ComponentService
 
             return $php;
         }
+        return '';
     }
 
     private static function Prop2PHP($name, $value)
