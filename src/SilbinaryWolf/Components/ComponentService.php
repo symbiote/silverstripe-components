@@ -63,7 +63,7 @@ class ComponentService
                     }
                 default:
                     {
-                    // restricted name error
+                        // restricted name error
                         if ($propName[0] === '_') {
                             throw new SSTemplateParseException('Invalid special property type: "' . $propName . '", properties that start with a _ are reserved for special functionality. Available special property types are: "_json".', $parser);
                             break;
@@ -73,6 +73,9 @@ class ComponentService
                     }
             }
         }
+
+        // handle child html
+        $php .= self::handleChildHTML($data, $properties, $parser);
         
         // final render call for output php
         $php .= "\$val .= Injector::inst()->get('SilbinaryWolf\\Components\\ComponentService')->renderComponent('$componentName', \$_props, \$scope);\nunset(\$_props);\n";
@@ -139,10 +142,33 @@ class ComponentService
             if (is_array($value)) {
                 $value = self::exportNestedDataForTemplates($value);
             }
+            // handle strings
+            else if (is_string($value)) {
+                $value = '"' . $value . '"';
+            }
             $buffer .= self::Prop2PHP($name, $value);
         }
 
         return $buffer;
+    }
+
+    private static function handleChildHTML($data, $properties, $parser)
+    {
+        if (isset($data['Children']['php'])) {
+            // handle children property collision
+            if (isset($properties['children'])) {
+                throw new SSTemplateParseException('Cannot use "children" as a property name and have inner HTML.', $parser);
+            }
+
+            // construct php
+            $value = $data['Children']['php'];
+            $php = "\$_props['children'] = '';\n" . $value;
+            $php = str_replace("\$val .=", "\$_props['children'] .=", $php);
+            $php .= "\$_props['children'] = DBField::create_field('HTMLText', \$_props['children']);\n";
+
+            return $php;
+        }
+        return '';
     }
 
     private static function Prop2PHP($name, $value)
