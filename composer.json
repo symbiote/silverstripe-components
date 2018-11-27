@@ -36,6 +36,9 @@
         },
         "installer-name": "components"
     },
+    "replace": {
+        "silbinarywolf/silverstripe-components": ">=0.1.0 <=1.2.1"
+    },
     "prefer-stable": true,
     "minimum-stability": "dev"
 }
