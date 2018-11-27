@@ -1,6 +1,6 @@
 <?php
 
-namespace SilbinaryWolf\Components\Tests;
+namespace Symbiote\Components\Tests;
 
 use Exception;
 use Config;
@@ -12,7 +12,7 @@ use ArrayData;
 use TextField;
 use ViewableData;
 use SSTemplateParseException;
-use SilbinaryWolf\Components\ComponentReservedPropertyException;
+use Symbiote\Components\ComponentReservedPropertyException;
 
 class ComponentTest extends SapphireTest
 {
@@ -332,7 +332,7 @@ HTML;
 
     /**
      * If you don't pass a $class variable in, $class will end
-     * up defaulting to 'SilbinaryWolf\Components\ComponentData' without
+     * up defaulting to 'Symbiote\Components\ComponentData' without
      * additional logic that prevents that (found in ComponentData class)
      *
      * This is most likely not necessary in SilverStripe 4.X, but it was
@@ -352,7 +352,7 @@ HTML;
 
     /**
      * If you don't pass a $class variable in, $class will end
-     * up defaulting to 'SilbinaryWolf\Components\ComponentData' without
+     * up defaulting to 'Symbiote\Components\ComponentData' without
      * additional logic that prevents that (found in ComponentData class)
      *
      * This is most likely not necessary in SilverStripe 4.X, but it was
@@ -378,10 +378,10 @@ SSTemplate;
             );
             return;
         } catch (Exception $e) {
-            $this->fail('Incorrect Exception caught. Expected '.'\SilbinaryWolf\Components\ComponentReservedPropertyException'.' to be thrown.');
+            $this->fail('Incorrect Exception caught. Expected '.'\Symbiote\Components\ComponentReservedPropertyException'.' to be thrown.');
             return;
         }
-        $this->fail('No exception thrown. Expected '.'\SilbinaryWolf\Components\ComponentReservedPropertyException'.' to be thrown.');
+        $this->fail('No exception thrown. Expected '.'\Symbiote\Components\ComponentReservedPropertyException'.' to be thrown.');
     }
 
     /**

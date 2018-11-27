@@ -3,4 +3,4 @@ Name: components
 ---
 Injector:
   SSTemplateParser:
-    class: SilbinaryWolf\Components\ComponentTemplateParser
+    class: Symbiote\Components\ComponentTemplateParser

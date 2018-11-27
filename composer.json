@@ -1,5 +1,5 @@
 {
-    "name": "silbinarywolf/silverstripe-components",
+    "name": "symbiote/silverstripe-components",
     "description": "Create components using SilverStripe.",
     "type": "silverstripe-module",
     "keywords": [
@@ -21,13 +21,13 @@
     },
     "scripts": {
         "phpstan": "bash ../vendor/bin/phpstan analyse src/ tests/ -c \".phpstan.neon\" -a \"tests/bootstrap-phpstan.php\" --level 3",
-        "phpcbf": "phpcbf --ignore=SilbinaryWolf/Components/ComponentTemplateParser.php src/ tests/",
-        "php-peg": "php ../framework/thirdparty/php-peg/cli.php ./src/SilbinaryWolf/Components/ComponentTemplateParser.peg > ./src/SilbinaryWolf/Components/ComponentTemplateParser.php"
+        "phpcbf": "phpcbf --ignore=Symbiote/Components/ComponentTemplateParser.php src/ tests/",
+        "php-peg": "php ../framework/thirdparty/php-peg/cli.php ./src/Symbiote/Components/ComponentTemplateParser.peg > ./src/Symbiote/Components/ComponentTemplateParser.php"
     },
     "autoload": {
         "psr-4": {
-            "SilbinaryWolf\\Components\\": "src/",
-            "SilbinaryWolf\\Components\\Tests\\": "tests/"
+            "Symbiote\\Components\\": "src/",
+            "Symbiote\\Components\\Tests\\": "tests/"
         }
     },
     "extra": {

@@ -76,8 +76,8 @@ $_props['class'][] = $scope->locally()->obj('getAttribute', array('class'), true
 
 }
 $_props['class'][] = ' test';
-$_props['class'] = Injector::inst()->createWithArgs('SilbinaryWolf\Components\DBComponentField', array('class', $_props['class']));
-$val .= Injector::inst()->get('SilbinaryWolf\Components\ComponentService')->renderComponent('FormTextInput', $_props, $scope);
+$_props['class'] = Injector::inst()->createWithArgs('Symbiote\Components\DBComponentField', array('class', $_props['class']));
+$val .= Injector::inst()->get('Symbiote\Components\ComponentService')->renderComponent('FormTextInput', $_props, $scope);
 unset($_props); 
 $val .= '
 ';
@@ -101,6 +101,6 @@ $_props['Cards'][] = new SilverStripe\ORM\ArrayList(array (
     'Link' => 'https://link2.com',
   ),
 ));
-$_props['Cards'] = \SilverStripe\Core\Injector\Injector::inst()->get(SilbinaryWolf\Components\ComponentService::class)->createProperty('Cards', $_props['Cards']);
-$val .= \SilverStripe\Core\Injector\Injector::inst()->get(SilbinaryWolf\Components\ComponentService::class)->renderComponent('JSONSyntaxTest', $_props, $scope);
+$_props['Cards'] = \SilverStripe\Core\Injector\Injector::inst()->get(Symbiote\Components\ComponentService::class)->createProperty('Cards', $_props['Cards']);
+$val .= \SilverStripe\Core\Injector\Injector::inst()->get(Symbiote\Components\ComponentService::class)->renderComponent('JSONSyntaxTest', $_props, $scope);
 ```
