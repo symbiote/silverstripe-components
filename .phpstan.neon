@@ -12,6 +12,6 @@ parameters:
         # Ignore object errors (PHPStan can't understand classes called "Object")
         - '%Call to an undefined method object::%'
         # Ignore missing variable declarations on SSTemplateParser
-        - '%Access to an undefined property SilbinaryWolf\\Components\\ComponentTemplateParser%'
+        - '%Access to an undefined property Symbiote\\Components\\ComponentTemplateParser%'
 #includes:
-#   - ../vendor/silbinarywolf/silverstripe-phpstan/extension.neon
+#   - ../vendor/symbiote/silverstripe-phpstan/extension.neon

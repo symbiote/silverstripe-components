@@ -42,6 +42,6 @@ before_script:
   - cd ~/builds/ss
 
 script:
-  - if [[ $PHPCS_TEST ]]; then vendor/bin/phpcs --ignore=src/SilbinaryWolf/Components/ComponentTemplateParser.php components/src/ components/tests/ -n; fi
+  - if [[ $PHPCS_TEST ]]; then vendor/bin/phpcs --ignore=src/Symbiote/Components/ComponentTemplateParser.php components/src/ components/tests/ -n; fi
   - if [[ $PHPSTAN_TEST ]]; then vendor/bin/phpstan analyse components/src/ components/tests/ -c "components/.phpstan.neon" -a "components/tests/bootstrap-phpstan.php" --level 3; fi
   - vendor/bin/phpunit components/tests/
