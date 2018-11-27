@@ -1,6 +1,6 @@
 <?php
 
-namespace SilbinaryWolf\Components;
+namespace Symbiote\Components;
 
 use Exception;
 

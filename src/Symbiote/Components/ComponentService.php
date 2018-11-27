@@ -1,6 +1,6 @@
 <?php
 
-namespace SilbinaryWolf\Components;
+namespace Symbiote\Components;
 
 use Exception;
 use SSViewer;
@@ -78,7 +78,7 @@ class ComponentService
         $php .= self::handleChildHTML($data, $properties, $parser);
         
         // final render call for output php
-        $php .= "\$val .= Injector::inst()->get('SilbinaryWolf\\Components\\ComponentService')->renderComponent('$componentName', \$_props, \$scope);\nunset(\$_props);\n";
+        $php .= "\$val .= Injector::inst()->get('Symbiote\\Components\\ComponentService')->renderComponent('$componentName', \$_props, \$scope);\nunset(\$_props);\n";
 
         return $php;
     }
@@ -199,7 +199,7 @@ class ComponentService
         }
 
         // add render call
-        $buffer .= "\$_props['" . $name . "'] = Injector::inst()->get('SilbinaryWolf\\Components\\ComponentService')->createProperty('" . $name . "', \$_props['" . $name . "']);\n";
+        $buffer .= "\$_props['" . $name . "'] = Injector::inst()->get('Symbiote\\Components\\ComponentService')->createProperty('" . $name . "', \$_props['" . $name . "']);\n";
 
         return $buffer;
     }
@@ -255,7 +255,7 @@ class ComponentService
                 return $parts[0]->RAW();
             }
         }
-        return Injector::inst()->createWithArgs('SilbinaryWolf\Components\DBComponentField', array($name, $parts));
+        return Injector::inst()->createWithArgs('Symbiote\Components\DBComponentField', array($name, $parts));
     }
 
     /**

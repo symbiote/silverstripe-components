@@ -1,8 +1,8 @@
 <?php
 
-namespace SilbinaryWolf\Components;
+namespace Symbiote\Components;
 
-use SilbinaryWolf\Components\Tests\ComponentTest;
+use Symbiote\Components\Tests\ComponentTest;
 use ViewableData;
 use Exception;
 
