@@ -19,6 +19,10 @@ use Symbiote\ArrayListExportable;
 
 class ComponentService
 {
+    private static $component_paths = [
+        'components'
+    ];
+    
     /**
      * @param array            $data
      * @param SSTemplateParser $parser
@@ -163,7 +167,7 @@ class ComponentService
             $value = $data['Children']['php'];
             $php = "\$_props['children'] = '';\n" . $value;
             $php = str_replace("\$val .=", "\$_props['children'] .=", $php);
-            $php .= "\$_props['children'] = DBField::create_field('HTMLText', \$_props['children']);\n";
+            $php .= "\$_props['children'] = SilverStripe\ORM\FieldType\DBField::create_field('HTMLText', \$_props['children']);\n";
 
             return $php;
         }
