@@ -77,7 +77,7 @@ class ComponentService
         $php .= self::handleChildHTML($data, $properties, $parser);
         
         // final render call for output php
-        $php .= "\$val .= Injector::inst()->get('Symbiote\\Components\\ComponentService')->renderComponent('$componentName', \$_props, \$scope);\nunset(\$_props);\n";
+        $php .= "\$val .= SilverStripe\Core\Injector\Injector::inst()->get('Symbiote\\Components\\ComponentService')->renderComponent('$componentName', \$_props, \$scope);\nunset(\$_props);\n";
 
         return $php;
     }
@@ -198,7 +198,7 @@ class ComponentService
         }
 
         // add render call
-        $buffer .= "\$_props['" . $name . "'] = Injector::inst()->get('Symbiote\\Components\\ComponentService')->createProperty('" . $name . "', \$_props['" . $name . "']);\n";
+        $buffer .= "\$_props['" . $name . "'] = SilverStripe\Core\Injector\Injector::inst()->get('Symbiote\\Components\\ComponentService')->createProperty('" . $name . "', \$_props['" . $name . "']);\n";
 
         return $buffer;
     }
