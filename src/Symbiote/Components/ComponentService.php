@@ -113,7 +113,7 @@ class ComponentService
             }
         }
 
-        return self::Prop2PHP($propName, $propValues);
+        return self::prop2PHP($propName, $propValues);
     }
 
     private static function handlePropertyJSON($propValue, $parser)
@@ -149,7 +149,7 @@ class ComponentService
             else if (is_string($value)) {
                 $value = '"' . $value . '"';
             }
-            $buffer .= self::Prop2PHP($name, $value);
+            $buffer .= self::prop2PHP($name, $value);
         }
 
         return $buffer;
@@ -174,7 +174,7 @@ class ComponentService
         return '';
     }
 
-    private static function Prop2PHP($name, $value)
+    private static function prop2PHP($name, $value)
     {
         // turns a value into php code
         $val2PHP = function ($value) use ($name) {
