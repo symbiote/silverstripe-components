@@ -39,6 +39,12 @@ class ComponentService
         foreach ($properties as $i => $prop) {
             // Extract property / values from parser information
             $propAndValue = explode('=>', $prop);
+            if(sizeof($propAndValue) < 2) {
+                throw new SSTemplateParseException(
+                    'Malformed property: "' . $prop . '" on component "' . $componentName . '"',
+                    $parser
+                );
+            }
             $propName = trim($propAndValue[0]);
             $propName = trim($propName, '\'');
             $propName = trim($propName, '"');
