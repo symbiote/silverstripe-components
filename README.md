@@ -31,7 +31,7 @@ composer require symbiote/silverstripe-components
 
 ## Requirements
 
-* SilverStripe ^4 || ^5
+* SilverStripe ^5
 
 ## Documentation
 
