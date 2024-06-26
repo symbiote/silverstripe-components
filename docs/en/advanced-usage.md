@@ -69,14 +69,14 @@ is output as a string. This is necessary in SilverStripe 4 to ensure passing 'ge
 $val .= '
 ';
 
-$_props = array();
-$_props['class'] = array();
-if ($scope->locally()->hasValue('getAttribute', array('class'), true)) { 
-$_props['class'][] = $scope->locally()->obj('getAttribute', array('class'), true)->self();
+$_props = [];
+$_props['class'] = [];
+if ($scope->locally()->hasValue('getAttribute', ['class'], true)) { 
+$_props['class'][] = $scope->locally()->obj('getAttribute', ['class'], true)->self();
 
 }
 $_props['class'][] = ' test';
-$_props['class'] = Injector::inst()->createWithArgs('Symbiote\Components\DBComponentField', array('class', $_props['class']));
+$_props['class'] = Injector::inst()->createWithArgs('Symbiote\Components\DBComponentField', ['class', $_props['class']]);
 $val .= Injector::inst()->get('Symbiote\Components\ComponentService')->renderComponent('FormTextInput', $_props, $scope);
 unset($_props); 
 $val .= '
@@ -85,22 +85,22 @@ $val .= '
 
 **JSON Output:**
 ```
-$_props = array();
-$_props['Cards'] = array();
-$_props['Cards'][] = new SilverStripe\ORM\ArrayList(array (
+$_props = [];
+$_props['Cards'] = [];
+$_props['Cards'][] = new SilverStripe\ORM\ArrayList([
   0 => 
-  array (
+  [
     'Title' => 'This is the first card',
     'Summary' => 'This is the first card summary',
     'Link' => 'https://link1.com',
-  ),
+  ],
   1 => 
-  array (
+  [
     'Title' => 'This is the second card',
     'Summary' => 'This is the second card summary',
     'Link' => 'https://link2.com',
-  ),
-));
+  ],
+]);
 $_props['Cards'] = \SilverStripe\Core\Injector\Injector::inst()->get(Symbiote\Components\ComponentService::class)->createProperty('Cards', $_props['Cards']);
 $val .= \SilverStripe\Core\Injector\Injector::inst()->get(Symbiote\Components\ComponentService::class)->renderComponent('JSONSyntaxTest', $_props, $scope);
 ```

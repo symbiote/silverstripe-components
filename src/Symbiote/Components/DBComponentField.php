@@ -21,9 +21,9 @@ class DBComponentField extends DBText
      *
      * @var array
      */
-    //private static $text_property_casting = array(
+    //private static $text_property_casting = [
     //    'getAttributesHTML' => true,
-    //);
+    //];
 
     /**
      * Store the objects passed into a component property.

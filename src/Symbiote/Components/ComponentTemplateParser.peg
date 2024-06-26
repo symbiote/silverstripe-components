@@ -38,7 +38,7 @@ class ComponentTemplateParser extends SSTemplateParser
     # Any new template elements need to be included in this list, if they are to work.
 
     Template: (Comment | Translate | If | Require | CacheBlock | UncachedBlock | OldI18NTag | Include | ClosedBlock |
-        OpenBlock | MalformedBlock | Injection | Text | Component | ComponentSelfClosing)+
+           OpenBlock | MalformedBlock | MalformedBracketInjection | Injection | Text | Component | ComponentSelfClosing)+
     */
 
     /*!*
@@ -73,6 +73,9 @@ class ComponentTemplateParser extends SSTemplateParser
     Argument:
         :DollarMarkedLookup |
         :QuotedString |
+        :Null |
+        :Boolean |
+        :IntegerOrFloat |
         :Lookup !(< FreeString)|
         :FreeString
 

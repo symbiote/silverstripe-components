@@ -22,7 +22,7 @@ class ComponentService
     private static $component_paths = [
         'components'
     ];
-    
+
     /**
      * @param array            $data
      * @param SSTemplateParser $parser
@@ -31,7 +31,7 @@ class ComponentService
     public function generateTemplateCode(array $data, $parser)
     {
         // output data
-        $php = "\$_props = array();\n";
+        $php = "\$_props = [];\n";
 
         // iterate properties
         $componentName = $data['ComponentName']['text'];
@@ -49,7 +49,7 @@ class ComponentService
             $propName = trim($propName, '\'');
             $propName = trim($propName, '"');
             $propValue = $propAndValue[1];
-            
+
             // template errors
             if (str_contains($propValue, '<% if')) {
                 throw new SSTemplateParseException(
@@ -85,9 +85,9 @@ class ComponentService
 
         // handle child html
         $php .= self::handleChildHTML($data, $properties, $parser);
-        
+
         // final render call for output php
-        $php .= "\$val .= SilverStripe\Core\Injector\Injector::inst()->get('Symbiote\\Components\\ComponentService')->renderComponent('$componentName', \$_props, \$scope);\nunset(\$_props);\n";
+        $php .= "\$val .= SilverStripe\Core\Injector\Injector::inst()->get(Symbiote\Components\ComponentService::class)->renderComponent('$componentName', \$_props, \$scope);\nunset(\$_props);\n";
 
         return $php;
     }
@@ -172,10 +172,10 @@ class ComponentService
             // construct php
             $value = $data['Children']['php'];
             $php = "\$_props['children'] = '';\n" . $value;
-            $php = str_replace("\$_props = array();\n", "", $php);
+            $php = str_replace("\$_props = [];\n", "", $php);
             $php = str_replace("unset(\$_props);\n", "", $php);
             $php = str_replace("\$val .=", "\$_props['children'] .=", $php);
-            $php .= "\$_props['children'] = SilverStripe\ORM\FieldType\DBField::create_field('HTMLText', \$_props['children']);\n";
+            $php .= "\$_props['children'] = SilverStripe\ORM\FieldType\DBField::create_field('HTMLFragment', \$_props['children']);\n";
 
             return $php;
         }
@@ -198,7 +198,7 @@ class ComponentService
         };
 
         // instantiate prop
-        $buffer = "\$_props['" . $name . "'] = array();\n";
+        $buffer = "\$_props['" . $name . "'] = [];\n";
 
         // add prop value(s)
         if (is_array($value)) {
@@ -210,7 +210,7 @@ class ComponentService
         }
 
         // add render call
-        $buffer .= "\$_props['" . $name . "'] = SilverStripe\Core\Injector\Injector::inst()->get('Symbiote\\Components\\ComponentService')->createProperty('" . $name . "', \$_props['" . $name . "']);\n";
+        $buffer .= "\$_props['" . $name . "'] = SilverStripe\Core\Injector\Injector::inst()->get(Symbiote\Components\ComponentService::class)->createProperty('" . $name . "', \$_props['" . $name . "']);\n";
 
         return $buffer;
     }
@@ -285,7 +285,7 @@ class ComponentService
         $templates[] = $name;
 
         $result = Injector::inst()->createWithArgs(SSViewer::class, [$templates]);
-        $data = new ComponentData($name, $props);
+        $data = ComponentData::create($name, $props);
         $result = $result->process($data);
         // todo(Jake): 2018-03-31
         //

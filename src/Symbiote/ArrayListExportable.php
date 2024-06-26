@@ -8,12 +8,12 @@ use SilverStripe\ORM\ArrayList;
  *
  * var_export calls '__set_state' on classes, so it produces code like:
  *
- *      ArrayList::__set_state(array('items' => [...]))
+ *      ArrayList::__set_state(['items' => [...]])
  *
  * And because ArrayList doens't implement '__set_state', executing the code throws errors.
  * So we work around this by using an ArrayListExportable to produce:
  *
- *      ArrayListExportable::__set_state(array('items' => [...]))
+ *      ArrayListExportable::__set_state(['items' => [...]])
  *
  * And implement '__set_state' to return a constructed ArrayList.
  */
