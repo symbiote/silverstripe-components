@@ -19,12 +19,12 @@ use SilverStripe\ORM\ArrayList;
  */
 class ArrayListExportable
 {
-    public function __construct($array = array())
+    public function __construct($array = [])
     {
         // need to store items for var_export to recurse
         $this->items = $array;
     }
-     public static function __set_state ($array)
+    public static function __set_state($array)
     {
         // when executed, we naruto-style body-replace with in an ArrayList
         return new ArrayList($array['items']);

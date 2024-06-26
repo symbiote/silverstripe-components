@@ -35,11 +35,11 @@ class ComponentService
 
         // iterate properties
         $componentName = $data['ComponentName']['text'];
-        $properties = isset($data['arguments']) ? $data['arguments'] : array();
+        $properties = $data['arguments'] ?? [];
         foreach ($properties as $i => $prop) {
             // Extract property / values from parser information
-            $propAndValue = explode('=>', $prop);
-            if(sizeof($propAndValue) < 2) {
+            $propAndValue = explode('=>', (string) $prop);
+            if (sizeof($propAndValue) < 2) {
                 throw new SSTemplateParseException(
                     'Malformed property: "' . $prop . '" on component "' . $componentName . '"',
                     $parser
@@ -51,12 +51,12 @@ class ComponentService
             $propValue = $propAndValue[1];
             
             // template errors
-            if (strpos($propValue, '<% if') !== false) {
+            if (str_contains($propValue, '<% if')) {
                 throw new SSTemplateParseException(
                     'Missing < % end_if % > inside property "' . $propName . '" on component "' . $componentName . '"',
                     $parser
                 );
-            } else if (strpos($propValue, '<% loop') !== false) {
+            } elseif (str_contains($propValue, '<% loop')) {
                 throw new SSTemplateParseException(
                     'Cannot use < % loop % > inside property "' . $propName . '" on component "' . $componentName . '"',
                     $parser
@@ -67,19 +67,19 @@ class ComponentService
             switch ($propName) {
                 case '_json':
                     {
-                        $php .= $this->handlePropertyJSON($propValue, $parser);
+                        $php .= self::handlePropertyJSON($propValue, $parser);
                         break;
-                    }
+                }
                 default:
                     {
                         // restricted name error
-                        if ($propName[0] === '_') {
-                            throw new SSTemplateParseException('Invalid special property type: "' . $propName . '", properties that start with a _ are reserved for special functionality. Available special property types are: "_json".', $parser);
-                            break;
-                        }
-                        $php .= $this->handleProperyNormal($propValue, $propName);
+                    if ($propName[0] === '_') {
+                        throw new SSTemplateParseException('Invalid special property type: "' . $propName . '", properties that start with a _ are reserved for special functionality. Available special property types are: "_json".', $parser);
                         break;
                     }
+                        $php .= self::handleProperyNormal($propValue, $propName);
+                    break;
+                }
             }
         }
 
@@ -98,7 +98,7 @@ class ComponentService
         $propValues = [];
 
         // Modify provided PHP code
-        $valueParts = explode('[_CPB]', $propValue);
+        $valueParts = explode('[_CPB]', (string) $propValue);
         foreach ($valueParts as $valuePart) {
             $valuePart = trim($valuePart);
             $values = explode('[_CFP]', $valuePart);
@@ -126,10 +126,10 @@ class ComponentService
     {
         // get json data
         $jsonString = $propValue;
-        $jsonString = trim($jsonString);
+        $jsonString = trim((string) $jsonString);
         $jsonString = trim($jsonString, '\'');
         $jsonString = trim($jsonString, '"');
-        $jsonString = str_replace(array("\\\\\\'", '\\\\"'), array("'", '\\"'), $jsonString);
+        $jsonString = str_replace(["\\\\\\'", '\\\\"'], ["'", '\\"'], $jsonString);
         $jsonData = @json_decode($jsonString, true);
 
         // handle json error
@@ -139,7 +139,7 @@ class ComponentService
                     {
                         throw new SSTemplateParseException('JSON Syntax error, did you quote all the property names and remove trailing commas? I suggest running the following through a JSON validator online.' . "\n" . $jsonString, $parser);
                         break;
-                    }
+                }
             }
             throw new SSTemplateParseException('JSON ' . json_last_error_msg() . "\n" . $jsonString, $parser);
         }
@@ -152,7 +152,7 @@ class ComponentService
                 $value = self::exportNestedDataForTemplates($value);
             }
             // handle strings
-            else if (is_string($value)) {
+            elseif (is_string($value)) {
                 $value = '"' . $value . '"';
             }
             $buffer .= self::prop2PHP($name, $value);
@@ -186,9 +186,9 @@ class ComponentService
     {
         // turns a value into php code
         $val2PHP = function ($value) use ($name) {
-            if (strpos($value, '$val .=') !== false) {
-                if (strpos($value, 'XML_val(') !== false) {
-                    $value = str_replace(array('XML_val(', ';'), array('obj(', '->self();'), $value);
+            if (str_contains((string) $value, '$val .=')) {
+                if (str_contains((string) $value, 'XML_val(')) {
+                    $value = str_replace(['XML_val(', ';'], ['obj(', '->self();'], $value);
                 }
                 $value = str_replace('$val .=', '$_props[\'' . $name . '\'][] =', $value);
                 return $value . "\n";
@@ -261,7 +261,7 @@ class ComponentService
                 return $parts[0];
             }
         }
-        return Injector::inst()->createWithArgs(DBComponentField::class, array($name, $parts));
+        return Injector::inst()->createWithArgs(DBComponentField::class, [$name, $parts]);
     }
 
     /**
@@ -275,7 +275,7 @@ class ComponentService
     public function renderComponent($name, array $props, SSViewer_Scope $scope)
     {
         $templates = [];
-        foreach (Config::inst()->get(__CLASS__, 'component_paths') as $path) {
+        foreach (Config::inst()->get(self::class, 'component_paths') as $path) {
             $templates[] = ['type' => $path, $name];
         }
 

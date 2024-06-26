@@ -145,7 +145,7 @@ PHP;
     */
     function Component__construct(&$res)
     {
-        $res['arguments'] = array();
+        $res['arguments'] = [];
     }
 
     function Component_ComposedNamedArgument(&$res, $sub)

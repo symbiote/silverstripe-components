@@ -18,7 +18,7 @@ class ComponentReservedPropertyException extends ComponentException
     {
         $this->propertyName = $propertyName;
         $this->componentName = $componentName;
-        $message = 'You cannot use the property "'.$propertyName.'" on "'.$componentName.'" as it\'s already used by ViewableData.';
+        $message = 'You cannot use the property "' . $propertyName . '" on "' . $componentName . '" as it\'s already used by ViewableData.';
         parent::__construct($message);
     }
 }

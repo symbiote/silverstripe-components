@@ -19,14 +19,14 @@ use Symbiote\Components\ComponentReservedPropertyException;
 
 class ComponentTest extends SapphireTest
 {
-    public function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         SSViewer::config()->source_file_comments = false;
         //SSViewer_FromString::config()->cache_template = false;
     }
 
-    public function tearDown()
+    protected function tearDown(): void
     {
         parent::tearDown();
     }
@@ -43,7 +43,7 @@ class ComponentTest extends SapphireTest
         try {
             $resultHTML = $service->renderComponent('SubComponent', [], $scope);
         } catch (\Exception $e) {
-            $this->assertTrue(strpos($e->getMessage(), "None of the following templates could be found") !== false);
+            $this->assertTrue(str_contains($e->getMessage(), "None of the following templates could be found"));
         }
 
         $service->componentTemplatePaths = [
@@ -53,7 +53,7 @@ class ComponentTest extends SapphireTest
         $resultHTML = $service->renderComponent('SubComponent', [], $scope);
 
         $expected = '<button class="subcomponent">Text</button>';
-        $this->assertEquals($expected, trim($resultHTML->getValue()));
+        $this->assertEquals($expected, trim((string) $resultHTML->getValue()));
     }
 
     /**
@@ -222,9 +222,9 @@ HTML;
         $formField = new TextField("Name", "Name");
         $resultHTML = SSViewer::fromString($template)->process(
             new ArrayData(
-                array(
+                [
                     'Field' => $formField,
-                )
+                ]
             )
         );
         $this->assertEqualIgnoringWhitespace($expectedHTML, $resultHTML, 'Unexpected output');
@@ -232,14 +232,14 @@ HTML;
 
     public function testSSListSupport()
     {
-        $list = new ArrayList(array(
-            new ArrayData(array(
+        $list = new ArrayList([
+            new ArrayData([
                 'Title' => 'Menu Item 1'
-            )),
-            new ArrayData(array(
+            ]),
+            new ArrayData([
                 'Title' => 'Menu Item 2'
-            ))
-        ));
+            ])
+        ]);
         $template = <<<SSTemplate
 <div class="menu-container-count-\$MenuList.Count">
     <:SSListComponent
@@ -262,9 +262,9 @@ HTML;
         $formField = new TextField("Name", "Name");
         $resultHTML = SSViewer::fromString($template)->process(
             new ArrayData(
-                array(
+                [
                     'MenuList' => $list,
-                )
+                ]
             )
         );
         $this->assertEqualIgnoringWhitespace($expectedHTML, $resultHTML, 'Unexpected output');
@@ -309,12 +309,12 @@ HTML;
         $formField = new TextField("Name", "Name");
         $resultHTML = SSViewer::fromString($template)->process(
             new ArrayData(
-                array(
+                [
                     'MyRecord' => $record,
-                    'MyArrayData' => new ArrayData(array(
+                    'MyArrayData' => new ArrayData([
                         'Title' => 'ArrayData Title 2'
-                    ))
-                )
+                    ])
+                ]
             )
         );
         $this->assertEqualIgnoringWhitespace($expectedHTML, $resultHTML, 'Unexpected output');
@@ -350,9 +350,9 @@ HTML;
         $formField = new TextField("Name", "Name");
         $resultHTML = SSViewer::fromString($template)->process(
             new ArrayData(
-                array(
+                [
                     'Field' => $formField,
-                )
+                ]
             )
         );
         $this->assertEqualIgnoringWhitespace($expectedHTML, $resultHTML, 'Unexpected output');
@@ -405,11 +405,11 @@ SSTemplate;
                 'Unexpected exception message given. Was this changed? If so, please update the expected value above.'
             );
             return;
-        } catch (Exception $e) {
-            $this->fail('Incorrect Exception caught. Expected '.ComponentReservedPropertyException::class.' to be thrown.');
+        } catch (Exception) {
+            $this->fail('Incorrect Exception caught. Expected ' . ComponentReservedPropertyException::class . ' to be thrown.');
             return;
         }
-        $this->fail('No exception thrown. Expected '.ComponentReservedPropertyException::class.' to be thrown.');
+        $this->fail('No exception thrown. Expected ' . ComponentReservedPropertyException::class . ' to be thrown.');
     }
 
     /**
@@ -515,14 +515,14 @@ SSTemplate;
         } catch (SSTemplateParseException $e) {
             // Success path!
             $expectedMessage = 'Parse error in template on line 16. Error was: JSON Syntax error, did you quote all the property names and remove trailing commas? I suggest running the following through a JSON validator online.';
-            $this->assertContains(
+            $this->assertStringContainsString(
                 $expectedMessage,
                 $e->getMessage(),
                 'Unexpected exception message given. Was this changed? If so, please update the expected value above.'
             );
             return;
-        } catch (Exception $e) {
-            $this->fail('Incorrect Exception caught. Expected '.SSTemplateParseException::class.' to be thrown.');
+        } catch (Exception) {
+            $this->fail('Incorrect Exception caught. Expected ' . SSTemplateParseException::class . ' to be thrown.');
             return;
         }
     }
@@ -657,12 +657,12 @@ SSTemplate;
         $expectedHTML = <<<HTML
     <h1>Root Test</h1>
     <div>
-        <h2>one</h2>        
+        <h2>one</h2>
         <h2>two</h2>
     </div>
     <div>
         <h2>three</h2>
-        <h2>four</h2>        
+        <h2>four</h2>
     </div>
 HTML;
         $resultHTML = SSViewer::fromString($template)->process(null);

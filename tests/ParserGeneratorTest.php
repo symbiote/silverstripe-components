@@ -13,7 +13,7 @@ class ParserGeneratorTest extends SapphireTest
      */
     protected function getModulePath()
     {
-        return dirname(__FILE__).'/..';
+        return __DIR__ . '/..';
     }
 
     /**
@@ -25,7 +25,7 @@ class ParserGeneratorTest extends SapphireTest
         $modulePath = $this->getModulePath();
 
         //
-        include_once(FRAMEWORK_DIR.'/thirdparty/php-peg/Compiler.php');
+        include_once(FRAMEWORK_DIR . '/thirdparty/php-peg/Compiler.php');
 
         //
         // Read files to check via composer.json
@@ -33,7 +33,7 @@ class ParserGeneratorTest extends SapphireTest
         // We do this so that the 'composer run-script php-peg' operation is the single source of truth
         // for this test.
         //
-        $composerJSON = file_get_contents($modulePath.'/composer.json');
+        $composerJSON = file_get_contents($modulePath . '/composer.json');
         $composer = json_decode($composerJSON, true);
         $this->assertTrue(
             isset($composer['scripts']['php-peg']) && $composer['scripts']['php-peg'],
@@ -41,7 +41,7 @@ class ParserGeneratorTest extends SapphireTest
         );
 
         //
-        $phpPegCommand = explode('>', $composer['scripts']['php-peg']);
+        $phpPegCommand = explode('>', (string) $composer['scripts']['php-peg']);
         $this->assertTrue(
             isset($phpPegCommand[1]),
             "Missing pipe (>) from php-peg script in composer.json"
@@ -51,16 +51,16 @@ class ParserGeneratorTest extends SapphireTest
         $inputFilename = trim($parts[count($parts)-1]);
 
         //
-        $inputFilename = str_replace('./', $modulePath.'/', $inputFilename);
-        $outputFilename = str_replace('./', $modulePath.'/', $outputFilename);
+        $inputFilename = str_replace('./', $modulePath . '/', $inputFilename);
+        $outputFilename = str_replace('./', $modulePath . '/', $outputFilename);
 
         $this->assertTrue(
             file_exists($inputFilename),
-            "Cannot find input filename from php-peg in composer.json: ".$inputFilename
+            "Cannot find input filename from php-peg in composer.json: " . $inputFilename
         );
         $this->assertTrue(
             file_exists($outputFilename),
-            "Cannot find output filename from php-peg in composer.json: ".$inputFilename
+            "Cannot find output filename from php-peg in composer.json: " . $inputFilename
         );
 
 
@@ -72,7 +72,7 @@ class ParserGeneratorTest extends SapphireTest
         $baseOutputFilename = basename($outputFilename);
         $this->assertTrue(
             $expectedGeneratedFileContents === $currentGeneratedFileContents,
-            "Re-generating ".$baseInputFilename." no longer matches the current file in the repository. Was ".$baseOutputFilename." edited manually?\nYou must edit ".$baseInputFilename.", then run \"composer run-script php-peg\" to re-generate ".$baseOutputFilename."."
+            "Re-generating " . $baseInputFilename . " no longer matches the current file in the repository. Was " . $baseOutputFilename . " edited manually?\nYou must edit " . $baseInputFilename . ", then run \"composer run-script php-peg\" to re-generate " . $baseOutputFilename . "."
         );
     }
 }

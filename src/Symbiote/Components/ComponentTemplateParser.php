@@ -633,7 +633,7 @@ class ComponentTemplateParser extends SSTemplateParser
     			$this->store( $result, $subres, "Name" );
     		}
     		else { $_125 = FALSE; break; }
-    		if (substr($this->string,$this->pos,1) == '=') {
+    		if (substr($this->string ?? '',$this->pos ?? 0,1) == '=') {
     			$this->pos += 1;
     			$result["text"] .= '=';
     		}
@@ -898,7 +898,7 @@ class ComponentTemplateParser extends SSTemplateParser
     		$pos_167 = $this->pos;
     		$_173 = NULL;
     		do {
-    			if (substr($this->string,$this->pos,1) == '{') {
+    			if (substr($this->string ?? '',$this->pos ?? 0,1) == '{') {
     				$this->pos += 1;
     				$result["text"] .= '{';
     			}
@@ -911,7 +911,7 @@ class ComponentTemplateParser extends SSTemplateParser
     			}
     			else { $_173 = FALSE; break; }
     			if (( $subres = $this->whitespace(  ) ) !== FALSE) { $result["text"] .= $subres; }
-    			if (substr($this->string,$this->pos,1) == '}') {
+    			if (substr($this->string ?? '',$this->pos ?? 0,1) == '}') {
     				$this->pos += 1;
     				$result["text"] .= '}';
     			}
@@ -1084,7 +1084,7 @@ PHP;
     			$this->store( $result, $subres, "Name" );
     		}
     		else { $_200 = FALSE; break; }
-    		if (substr($this->string,$this->pos,1) == '=') {
+    		if (substr($this->string ?? '',$this->pos ?? 0,1) == '=') {
     			$this->pos += 1;
     			$result["text"] .= '=';
     		}
@@ -1207,7 +1207,7 @@ PHP;
     			$this->store( $result, $subres );
     		}
     		else { $_229 = FALSE; break; }
-    		if (substr($this->string,$this->pos,1) == '>') {
+    		if (substr($this->string ?? '',$this->pos ?? 0,1) == '>') {
     			$this->pos += 1;
     			$result["text"] .= '>';
     		}
@@ -1243,7 +1243,7 @@ PHP;
     		}
     		else { $_229 = FALSE; break; }
     		if (( $subres = $this->whitespace(  ) ) !== FALSE) { $result["text"] .= $subres; }
-    		if (substr($this->string,$this->pos,1) == '>') {
+    		if (substr($this->string ?? '',$this->pos ?? 0,1) == '>') {
     			$this->pos += 1;
     			$result["text"] .= '>';
     		}
@@ -1365,7 +1365,7 @@ PHP;
 
     function Component__construct(&$res)
     {
-        $res['arguments'] = array();
+        $res['arguments'] = [];
     }
 
     function Component_ComposedNamedArgument(&$res, $sub)
@@ -1421,7 +1421,7 @@ PHP;
     						$pos_257 = $this->pos;
     						$_260 = NULL;
     						do {
-    							if (substr($this->string,$this->pos,1) == '<') {
+    							if (substr($this->string ?? '',$this->pos ?? 0,1) == '<') {
     								$this->pos += 1;
     								$result["text"] .= '<';
     							}
@@ -1450,7 +1450,7 @@ PHP;
     							$pos_262 = $this->pos;
     							$_267 = NULL;
     							do {
-    								if (substr($this->string,$this->pos,1) == '$') {
+    								if (substr($this->string ?? '',$this->pos ?? 0,1) == '$') {
     									$this->pos += 1;
     									$result["text"] .= '$';
     								}
@@ -1487,14 +1487,14 @@ PHP;
     								$pos_269 = $this->pos;
     								$_272 = NULL;
     								do {
-    									if (substr($this->string,$this->pos,1) == '{') {
+    									if (substr($this->string ?? '',$this->pos ?? 0,1) == '{') {
     										$this->pos += 1;
     										$result["text"] .= '{';
     									}
     									else { $_272 = FALSE; break; }
     									$res_271 = $result;
     									$pos_271 = $this->pos;
-    									if (substr($this->string,$this->pos,1) == '$') {
+    									if (substr($this->string ?? '',$this->pos ?? 0,1) == '$') {
     										$this->pos += 1;
     										$result["text"] .= '$';
     										$result = $res_271;
