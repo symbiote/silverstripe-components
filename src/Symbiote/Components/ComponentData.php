@@ -15,9 +15,16 @@ class ComponentData extends ViewableData
      */
     protected $____name;
 
+    protected $____properties;
+
     public function __construct($name, array $props)
     {
         parent::__construct();
+
+        $this->____name = $name;
+        foreach ($props as $prop => $value) {
+            $this->____properties[$prop] = $value;
+        }
 
         // NOTE(Jake): 2018-08-02
         //
@@ -31,15 +38,9 @@ class ComponentData extends ViewableData
         // - $beforeExtendCallbacks
         //
         foreach (get_object_vars($this) as $prop => $value) {
-            if (isset($props[$prop])) {
+            if (isset($this->____properties[$prop])) {
                 throw new ComponentReservedPropertyException($name, $prop);
             }
-        }
-
-        //
-        $this->____name = $name;
-        foreach ($props as $prop => $value) {
-            $this->{$prop} = $value;
         }
     }
 
@@ -48,6 +49,6 @@ class ComponentData extends ViewableData
      */
     public function __get($property)
     {
-        return null;
+        return $this->____properties[$property] ?? null;
     }
 }

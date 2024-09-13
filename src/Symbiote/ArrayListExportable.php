@@ -8,23 +8,23 @@ use SilverStripe\ORM\ArrayList;
  *
  * var_export calls '__set_state' on classes, so it produces code like:
  *
- *      ArrayList::__set_state(array('items' => [...]))
+ *      ArrayList::__set_state(['items' => [...]])
  *
  * And because ArrayList doens't implement '__set_state', executing the code throws errors.
  * So we work around this by using an ArrayListExportable to produce:
  *
- *      ArrayListExportable::__set_state(array('items' => [...]))
+ *      ArrayListExportable::__set_state(['items' => [...]])
  *
  * And implement '__set_state' to return a constructed ArrayList.
  */
 class ArrayListExportable
 {
-    public function __construct($array = array())
+    public function __construct($array = [])
     {
         // need to store items for var_export to recurse
         $this->items = $array;
     }
-     public static function __set_state ($array)
+    public static function __set_state($array)
     {
         // when executed, we naruto-style body-replace with in an ArrayList
         return new ArrayList($array['items']);

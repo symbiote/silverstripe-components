@@ -25,20 +25,13 @@ This module allows you to use special <:TemplateName> syntax to include template
 
 ## Composer Install
 
-**[SilverStripe 3.X](https://github.com/symbiote/silverstripe-components/tree/1)**
 ```
-composer require symbiote/silverstripe-components:~1.0
-```
-
-**[SilverStripe 4.X](https://github.com/symbiote/silverstripe-components/tree/master)**
-```
-composer require symbiote/silverstripe-components:~3.0
+composer require symbiote/silverstripe-components
 ```
 
 ## Requirements
 
-* PHP 5.6+
-* SilverStripe 4.0+
+* SilverStripe ^5
 
 ## Documentation
 

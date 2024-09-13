@@ -21,16 +21,16 @@ class DBComponentField extends DBText
      *
      * @var array
      */
-    //private static $text_property_casting = array(
+    //private static $text_property_casting = [
     //    'getAttributesHTML' => true,
-    //);
+    //];
 
     /**
      * Store the objects passed into a component property.
      *
      * @var ViewableData[]
      */
-    protected $fields = array();
+    protected $fields = [];
 
     public function __construct($name, array $fields)
     {
@@ -85,7 +85,7 @@ class DBComponentField extends DBText
      *
      * @see DBField::requireField()
      */
-    public function requireField()
+    public function requireField(): never
     {
         throw new Exception('Do not use this as a database field.');
     }
